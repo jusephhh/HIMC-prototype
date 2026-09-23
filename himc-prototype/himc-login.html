@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIMC - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8fafc;
+      /* Using the latest wavy background asset */
+      background-image: url('img/himc-login-bg.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 20px;
+    }
+
+    /* Main Container Card with Drop Shadow */
+    .login-card {
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      min-height: 520px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Left Banner Image */
+    .banner-side {
+      flex: 1;
+      position: relative;
+      background: #0d2137;
+      overflow: hidden;
+    }
+
+    .banner-side img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Right Form Area */
+    .form-side {
+      flex: 1.1;
+      padding: 45px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #ffffff;
+    }
+
+    .logo-container {
+      
+      display: flex;
+      align-items: center;
+    }
+
+    /* Cropping the border from the himc-logo.jpg using clip-path */
+    .logo-container img {
+      max-height: 150px;
+      width: auto;
+      object-fit: contain;
+      clip-path: inset(8% 4% 8% 4%); 
+    }
+
+    .heading {
+      font-size: 26px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .subheading {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 12px 42px 12px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1f2937;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-wrapper input:focus {
+      border-color: #0052cc;
+      box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.15);
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 14px;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 16px;
+      transition: color 0.2s;
+    }
+
+    .input-icon:hover {
+      color: #4b5563;
+    }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 13px;
+      color: #0052cc;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: -6px;
+      margin-bottom: 24px;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background-color: #0052cc;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover {
+      background-color: #0043a8;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.99);
+    }
+
+    /* Responsive Breakdown for Mobile */
+    @media (max-width: 768px) {
+      .login-card {
+        flex-direction: column;
+        max-width: 440px;
+      }
+      .banner-side {
+        height: 200px;
+      }
+      .form-side {
+        padding: 30px 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-card">
+    <!-- Left Banner Photo using the _n_4 image -->
+    <div class="banner-side">
+      <img src="img/himc-banner.jpg" alt="Holy Infant Montessori Center Banner">
+    </div>
+
+    <!-- Right Login Form -->
+    <div class="form-side">
+      <div class="logo-container">
+        <!-- The clip-path crops out the border while maintaining the logo text -->
+        <img src="img/himc-logo.jpg" alt="HIMC Logo">
+      </div>
+
+      <h1 class="heading">Striving for Excellence</h1>
+      <p class="subheading">
+        Step into your workspace and let excellence lead the way.<br>
+        Please login in to your HIMC account.
+      </p>
+
+      <form id="loginForm" onsubmit="event.preventDefault(); alert('Logging in...');">
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <div class="input-wrapper">
+            <input type="email" id="email" placeholder="@example.com" required>
+            <i class="fa-regular fa-envelope input-icon"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" placeholder="••••••••••••••••" required>
+            <i class="fa-solid fa-lock input-icon" id="togglePassword"></i>
+          </div>
+        </div>
+
+        <a href="#" class="forgot-link">Forgot Password?</a>
+
+        <button type="submit" class="btn-submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Toggle Password Visibility Logic
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      // Swap font-awesome lock icons
+      this.classList.toggle('fa-lock');
+      this.classList.toggle('fa-lock-open');
+    });
+  </script>
+
+</body>
+</html>

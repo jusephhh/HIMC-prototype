@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIMC School Management Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        himc: {
+                            blue: '#0B31A5',
+                            lightBlue: '#1D4ED8',
+                            bgGradStart: '#FCF9F3',
+                            bgGradEnd: '#E6ECFD',
+                            cardBorder: '#E5E7EB',
+                            indicatorGreen: '#86EFAC',
+                            indicatorYellow: '#FDE047',
+                            indicatorBlue: '#60A5FA',
+                            indicatorRed: '#F87171',
+                            redText: '#EF4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FCFBF5 0%, #FAF6EE 35%, #EFF3FD 70%, #E2EBFB 100%);
+            min-height: 100vh;
+            color: #1F2937;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .card-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid #E2E8F0;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        .sidebar-icon-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            color: #1E3A8A;
+            border: 1.5px solid #CBD5E1;
+            background-color: #FFFFFF;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-icon-btn:hover {
+            border-color: #0B31A5;
+            color: #0B31A5;
+            transform: translateY(-1px);
+        }
+
+        .sidebar-icon-btn.active {
+            background-color: #0B31A5;
+            color: #FFFFFF;
+            border-color: #0B31A5;
+            box-shadow: 0 4px 12px rgba(11, 49, 165, 0.25);
+        }
+
+        .node-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .node-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            border-color: #93C5FD;
+        }
+
+        /* Modal backdrop transition */
+        .modal-fade {
+            transition: opacity 0.25s ease-in-out;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8 flex flex-col min-h-screen relative">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="flex items-center justify-between gap-4 mb-6">
+        <!-- Logo Left -->
+        <div class="flex items-center cursor-pointer" onclick="showView('dashboard')">
+            <img src="img/himc-logo.jpg" alt="HIMC Logo" class="h-10 w-auto object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x40/0B31A5/FFF?text=HIMC'">
+        </div>
+
+        <!-- Center Nav Pills -->
+        <nav class="hidden md:flex items-center gap-3 overflow-x-auto py-1 px-2">
+            <button onclick="openModal('Manage Users', 'User Management Center', 'Manage system roles, permissions, and administrative access for faculty, staff, and students.')" class="px-6 py-2 text-sm font-medium text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-sm transition-all hover:border-gray-400">
+                Manage Users
+            </button>
+            <button onclick="showView('students')" class="px-6 py-2 text-sm font-medium text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-sm transition-all hover:border-gray-400">
+                Masterlist
+            </button>
+            <button onclick="showView('classes')" class="px-6 py-2 text-sm font-medium text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-sm transition-all hover:border-gray-400">
+                Classes
+            </button>
+            <button onclick="openModal('Academic Reports', 'System Reports & Analytics', 'Generate and export term progress, deportment logs, and grade distribution reports.')" class="px-6 py-2 text-sm font-medium text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-sm transition-all hover:border-gray-400">
+                Reports
+            </button>
+        </nav>
+
+        <!-- Right Menu Icon -->
+        <div class="flex items-center">
+            <button onclick="openModal('Options', 'System Preferences', 'Configure term schedules, active grading periods, and portal notifications.')" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-black/5 transition" title="More Options">
+                <i data-lucide="more-vertical" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN BODY WRAPPER (SIDEBAR + CONTENT) -->
+    <div class="flex flex-1 gap-6 md:gap-8 items-start">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="flex flex-col items-center justify-between py-2 gap-6 min-h-[calc(100vh-140px)] sticky top-6 z-10">
+            <div class="flex flex-col items-center gap-5">
+                <!-- Dashboard Active Icon -->
+                <button id="nav-btn-dashboard" onclick="showView('dashboard')" class="sidebar-icon-btn active" title="Dashboard">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                </button>
+                
+                <!-- Folders / Documents -->
+                <button id="nav-btn-students" onclick="showView('students')" class="sidebar-icon-btn" title="Masterlist & Students">
+                    <i data-lucide="folder" class="w-5 h-5"></i>
+                </button>
+                
+                <!-- Teachers Roster -->
+                <button id="nav-btn-teachers" onclick="showView('teachers')" class="sidebar-icon-btn" title="Faculty & Teachers">
+                    <i data-lucide="user-check" class="w-5 h-5"></i>
+                </button>
+                
+                <!-- Classes -->
+                <button id="nav-btn-classes" onclick="showView('classes')" class="sidebar-icon-btn" title="Classes & Subjects">
+                    <i data-lucide="award" class="w-5 h-5"></i>
+                </button>
+                
+                <!-- History / Clock -->
+                <button id="nav-btn-activity" onclick="openModal('Activity Audit Log', 'System Audit Trail', 'Review recent grade edits, masterlist syncs, and administrative events across S.Y 2026-2027.')" class="sidebar-icon-btn" title="Activity History">
+                    <i data-lucide="history" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Bottom Logout Button -->
+            <button onclick="openModal('Account Logout', 'Confirm Sign Out', 'Are you sure you want to log out of HIMC Portal? All unsaved grade entries will be cached.')" class="sidebar-icon-btn mt-auto text-gray-700" title="Log Out">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+            </button>
+        </aside>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <div class="flex-1 w-full">
+
+            <!-- VIEW 1: MAIN DASHBOARD NODE GRID -->
+            <main id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- LEFT 8-COLUMNS SECTION -->
+                <div class="lg:col-span-8 flex flex-col gap-6">
+                    
+                    <!-- Welcome Title & Search Bar Row -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Welcome Back, John Doe!</h1>
+                            <p class="text-sm md:text-base text-gray-500 font-medium mt-0.5">S.Y 2026-2027 | 1st Term</p>
+                        </div>
+
+                        <!-- Search Input -->
+                        <div class="relative w-full sm:w-72">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input id="dashboard-search" type="text" placeholder="Search node, student, class..." class="w-full pl-11 pr-4 py-2 bg-white/90 border border-gray-300 rounded-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-himc-blue focus:border-transparent transition-all shadow-sm" onkeyup="handleGlobalSearch(event)">
+                        </div>
+                    </div>
+
+                    <!-- CARD 1: QUICK OVERVIEW NODES -->
+                    <section class="card-container p-5 md:p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold text-gray-900">Quick Overview</h2>
+                            <span class="text-xs text-gray-400 font-medium">Click any node to expand</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <!-- Stat 1 Node: Students Enrolled -->
+                            <div onclick="showView('students')" class="node-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs group">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-2xl md:text-3xl font-extrabold text-gray-900 block mb-2">800</span>
+                                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-himc-blue transition-transform group-hover:translate-x-1"></i>
+                                    </div>
+                                    <div class="w-16 h-1.5 bg-green-400 rounded-full mb-3"></div>
+                                </div>
+                                <span class="text-xs md:text-sm font-semibold text-gray-600">Students Enrolled</span>
+                            </div>
+
+                            <!-- Stat 2 Node: Teachers -->
+                            <div onclick="showView('teachers')" class="node-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs group">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-2xl md:text-3xl font-extrabold text-gray-900 block mb-2">30</span>
+                                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-himc-blue transition-transform group-hover:translate-x-1"></i>
+                                    </div>
+                                    <div class="w-16 h-1.5 bg-yellow-400 rounded-full mb-3"></div>
+                                </div>
+                                <span class="text-xs md:text-sm font-semibold text-gray-600">Teachers</span>
+                            </div>
+
+                            <!-- Stat 3 Node: Classes -->
+                            <div onclick="showView('classes')" class="node-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs group">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-2xl md:text-3xl font-extrabold text-gray-900 block mb-2">50</span>
+                                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-himc-blue transition-transform group-hover:translate-x-1"></i>
+                                    </div>
+                                    <div class="w-16 h-1.5 bg-sky-400 rounded-full mb-3"></div>
+                                </div>
+                                <span class="text-xs md:text-sm font-semibold text-gray-600">Classes</span>
+                            </div>
+
+                            <!-- Stat 4 Node: Pending Action -->
+                            <div onclick="openModal('Pending Actions (2)', 'Immediate Items Requiring Review', '1. Gradebook approval for Grade 10 - Mathematics.<br>2. Transferee document verification for 3 students.')" class="node-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs group">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-2xl md:text-3xl font-extrabold text-gray-900 block mb-2">2</span>
+                                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-himc-blue transition-transform group-hover:translate-x-1"></i>
+                                    </div>
+                                    <div class="w-16 h-1.5 bg-red-400 rounded-full mb-3"></div>
+                                </div>
+                                <span class="text-xs md:text-sm font-semibold text-gray-600">Pending Action</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CARD 2: ACADEMIC REPORTING PROGRESS -->
+                    <section class="card-container p-5 md:p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-5">Academic Reporting Progress</h2>
+
+                        <div class="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 flex flex-col gap-5 shadow-xs">
+                            <!-- Progress Row 1 -->
+                            <div onclick="openModal('Overall Term Progress', 'First Term Breakdown (80%)', '80% of term modules and mid-term assessments have been completed across all grade levels. Final examination period starts in 3 weeks.')" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50/80 p-2 rounded-xl transition">
+                                <span class="text-sm md:text-base font-bold text-gray-800 sm:w-1/3">Overall Term Progress</span>
+                                <div class="flex items-center gap-4 sm:w-2/3">
+                                    <div class="flex-1 bg-gray-300 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-green-400 h-full rounded-full" style="width: 80%;"></div>
+                                    </div>
+                                    <span class="text-sm md:text-base font-extrabold text-gray-900 min-w-[40px] text-right">80%</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Row 2 -->
+                            <div onclick="openModal('Academic Grade Progress', 'Grade Submission Status (90%)', '27 out of 30 department leads have submitted finalized mid-term grade sheets. Pending 3 sections from Senior High department.')" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 cursor-pointer hover:bg-gray-50/80 p-2 rounded-xl transition">
+                                <span class="text-sm md:text-base font-bold text-gray-700 sm:w-1/3">Academic Grade Progress</span>
+                                <div class="flex items-center gap-4 sm:w-2/3">
+                                    <div class="flex-1 bg-gray-300 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-green-400 h-full rounded-full" style="width: 90%;"></div>
+                                    </div>
+                                    <span class="text-sm md:text-base font-extrabold text-gray-900 min-w-[40px] text-right">90%</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Row 3: Deportment Status -->
+                            <div onclick="openModal('Deportment Status', 'Pending Finalization', 'Student conduct evaluations are currently undergoing final guidance counselor verification before publishing.')" class="flex items-center justify-between pt-1 cursor-pointer hover:bg-red-50/50 p-2 rounded-xl transition">
+                                <span class="text-sm md:text-base font-semibold text-gray-600">Deportment Status</span>
+                                <span class="text-sm md:text-base font-bold text-red-500">Pending Finalization</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CARD 3: RECENT ACTIVITY -->
+                    <section class="card-container p-5 md:p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
+
+                        <div class="flex flex-col gap-3">
+                            <!-- Activity Item 1 -->
+                            <div onclick="openModal('Activity Details', 'Gradebook Finalized', 'Teacher Maria Santos submitted final grade entries for Grade 11 STEM Physics at 10:42 AM.')" class="bg-white border border-gray-200 rounded-full px-6 py-3.5 flex items-center justify-between hover:shadow-sm transition cursor-pointer hover:border-blue-300">
+                                <span class="text-sm md:text-base font-bold text-gray-800">Teacher finalized gradebook</span>
+                                <span class="text-xs md:text-sm font-medium text-gray-400">just now</span>
+                            </div>
+
+                            <!-- Activity Item 2 -->
+                            <div onclick="openModal('Activity Details', 'Masterlist Updated', 'Synchronized 15 new student records from the registrar admissions portal.')" class="bg-white border border-gray-200 rounded-full px-6 py-3.5 flex items-center justify-between hover:shadow-sm transition cursor-pointer hover:border-blue-300">
+                                <span class="text-sm md:text-base font-bold text-gray-800">Masterlist Updated</span>
+                                <span class="text-xs md:text-sm font-medium text-gray-400">5 hrs ago</span>
+                            </div>
+
+                            <!-- Activity Item 3 -->
+                            <div onclick="openModal('Activity Details', 'Role Change', 'Updated permission level for Administrative Officer Alex Cruz to System Manager.')" class="bg-white border border-gray-200 rounded-full px-6 py-3.5 flex items-center justify-between hover:shadow-sm transition cursor-pointer hover:border-blue-300">
+                                <span class="text-sm md:text-base font-bold text-gray-800">User Account Role Changed</span>
+                                <span class="text-xs md:text-sm font-medium text-gray-400">7 hrs ago</span>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- RIGHT 4-COLUMNS SECTION -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+
+                    <!-- USER PROFILE CARD -->
+                    <div onclick="openModal('User Profile', 'John Doe - Administrator', 'Email: johndoe@himc.edu.ph<br>Role: System Administrator<br>Last Login: Today at 08:15 AM')" class="bg-white/80 border border-gray-200 rounded-3xl p-4 flex items-center gap-4 shadow-xs cursor-pointer hover:border-blue-300 transition">
+                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+                            <i data-lucide="user" class="w-7 h-7"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h3 class="font-bold text-gray-900 text-base leading-tight truncate">John Doe</h3>
+                            <p class="text-xs text-gray-500 font-medium truncate mt-0.5">johndoe@himc.edu.ph</p>
+                        </div>
+                    </div>
+
+                    <!-- NEEDS ATTENTION CARD -->
+                    <section class="card-container p-5 md:p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4">Needs Attention</h2>
+
+                        <div class="flex flex-col gap-3.5">
+                            <!-- Notification 1 -->
+                            <div onclick="openModal('Incomplete Reports', '5 Reports Pending Review', '1. Senior High Attendance Audit<br>2. Science Dept Facilities Report<br>3. Faculty Evaluation Summary<br>4. Athletics Budget Draft<br>5. Guidance Counseling Log')" class="bg-white border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 shadow-2xs hover:border-amber-300 transition cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                </div>
+                                <span class="text-sm md:text-base font-bold text-gray-800">5 Reports Incomplete</span>
+                            </div>
+
+                            <!-- Notification 2 -->
+                            <div onclick="openModal('Import Verification', '1 CSV Import Requires Attention', 'Batch import file student_masterlist_q1.csv contains 3 duplicate LRN entries requiring manual reconciliation.')" class="bg-white border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 shadow-2xs hover:border-amber-300 transition cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                </div>
+                                <span class="text-sm md:text-base font-bold text-gray-800">1 import requires review</span>
+                            </div>
+
+                            <!-- Notification 3 -->
+                            <div onclick="openModal('Class Setup Required', '2 Classes Unassigned', '1. Grade 7 - Diamond (Missing Homeroom Teacher)<br>2. Grade 12 - STEM B (Missing Physics Advisor)')" class="bg-white border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 shadow-2xs hover:border-red-300 transition cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-red-500 flex items-center justify-center text-white font-bold shrink-0 text-xs">
+                                    !
+                                </div>
+                                <span class="text-sm md:text-base font-bold text-gray-800">2 Classes need setup</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- THIS WEEK CALENDAR CARD -->
+                    <section class="card-container p-5 md:p-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <h2 class="text-lg font-bold text-gray-900">This Week</h2>
+                            
+                            <!-- Month Navigation -->
+                            <div class="flex items-center gap-2">
+                                <button onclick="openModal('Calendar Schedule', 'September 2026', 'Mid-term exams scheduled for September 24-26, 2026.')" class="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 hover:bg-gray-400 transition">
+                                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                </button>
+                                <span class="text-xs md:text-sm font-bold text-gray-800">September 2026</span>
+                                <button onclick="openModal('Calendar Schedule', 'October 2026', 'Parent-Teacher conference scheduled for October 5, 2026.')" class="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 hover:bg-gray-400 transition">
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Days Grid Pill Bar -->
+                        <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center">
+                            <!-- Sun -->
+                            <div onclick="openModal('Date Schedule', 'Sept 21, 2026', 'No academic events scheduled.')" class="bg-white/80 border border-gray-200 rounded-full py-4 flex flex-col items-center justify-between h-28 shadow-2xs cursor-pointer hover:border-himc-blue transition">
+                                <span class="text-xs font-medium text-gray-400">Sun</span>
+                                <span class="text-sm md:text-base font-bold text-gray-800">21</span>
+                            </div>
+
+                            <!-- Mon -->
+                            <div onclick="openModal('Date Schedule', 'Sept 22, 2026', 'Faculty Assembly at 8:00 AM.')" class="bg-white/80 border border-gray-200 rounded-full py-4 flex flex-col items-center justify-between h-28 shadow-2xs cursor-pointer hover:border-himc-blue transition">
+                                <span class="text-xs font-medium text-gray-400">Mon</span>
+                                <span class="text-sm md:text-base font-bold text-gray-800">22</span>
+                            </div>
+
+                            <!-- Tues -->
+                            <div onclick="openModal('Date Schedule', 'Sept 23, 2026', 'Grade submission deadline for 1st Quarter.')" class="bg-white/80 border border-gray-200 rounded-full py-4 flex flex-col items-center justify-between h-28 shadow-2xs cursor-pointer hover:border-himc-blue transition">
+                                <span class="text-xs font-medium text-gray-400">Tues</span>
+                                <span class="text-sm md:text-base font-bold text-gray-800">23</span>
+                            </div>
+
+                            <!-- Wed (Active highlighted pill) -->
+                            <div onclick="openModal('Active Day: Sept 24, 2026', 'Current Academic Day', '1. Midterm Examination Day 1<br>2. Executive Board Meeting at 2:00 PM')" class="bg-himc-blue border border-himc-blue rounded-full py-4 flex flex-col items-center justify-between h-28 shadow-md text-white cursor-pointer hover:scale-105 transition">
+                                <span class="text-xs font-medium opacity-80">Wed</span>
+                                <span class="text-base md:text-lg font-extrabold">24</span>
+                            </div>
+
+                            <!-- Thurs -->
+                            <div onclick="openModal('Date Schedule', 'Sept 25, 2026', 'Midterm Examination Day 2.')" class="bg-white/80 border border-gray-200 rounded-full py-4 flex flex-col items-center justify-between h-28 shadow-2xs cursor-pointer hover:border-himc-blue transition">
+                                <span class="text-xs font-medium text-gray-400">Thurs</span>
+                                <span class="text-sm md:text-base font-bold text-gray-800">25</span>
+                            </div>
+
+                            <!-- Fri -->
+                            <div onclick="openModal('Date Schedule', 'Sept 26, 2026', 'Sports Club Tryouts & Pep Rally.')" class="bg-white/80 border border-gray-200 rounded-full py-4 flex flex-col items-center justify-between h-28 shadow-2xs cursor-pointer hover:border-himc-blue transition">
+                                <span class="text-xs font-medium text-gray-400">Fri</span>
+                                <span class="text-sm md:text-base font-bold text-gray-800">26</span>
+                            </div>
+
+                            <!-- Sat -->
+                            <div onclick="openModal('Date Schedule', 'Sept 27, 2026', 'Campus Maintenance Window.')" class="bg-white/80 border border-gray-200 rounded-full py-4 flex flex-col items-center justify-between h-28 shadow-2xs cursor-pointer hover:border-himc-blue transition">
+                                <span class="text-xs font-medium text-gray-400">Sat</span>
+                                <span class="text-sm md:text-base font-bold text-gray-800">27</span>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+            </main>
+
+            <!-- VIEW 2: STUDENTS MASTERLIST (DYNAMIC NODE CONTENT) -->
+            <section id="view-students" class="hidden card-container p-6">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <button onclick="showView('dashboard')" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 text-gray-700"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Enrolled Students Masterlist</h2>
+                            <p class="text-sm text-gray-500">Total Enrolled: 800 Students | S.Y 2026-2027</p>
+                        </div>
+                    </div>
+                    <button onclick="openModal('Export Masterlist', 'Download Options', 'Exporting 800 student records as Excel (.xlsx) or CSV.')" class="px-4 py-2 bg-himc-blue text-white rounded-full text-sm font-semibold hover:bg-blue-800 transition">
+                        Export List
+                    </button>
+                </div>
+
+                <!-- Table Filter & Search -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-between mb-4">
+                    <input type="text" id="student-search" oninput="filterStudents()" placeholder="Filter by name or LRN..." class="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm w-full sm:w-80">
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full self-center">800 Regular</span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full self-center">1st Term Active</span>
+                    </div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead class="bg-gray-100 text-gray-800 uppercase text-xs">
+                            <tr>
+                                <th class="py-3 px-4 rounded-l-lg">LRN / ID</th>
+                                <th class="py-3 px-4">Student Name</th>
+                                <th class="py-3 px-4">Grade & Section</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4 rounded-r-lg text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-table-body" class="divide-y divide-gray-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- VIEW 3: TEACHERS ROSTER (DYNAMIC NODE CONTENT) -->
+            <section id="view-teachers" class="hidden card-container p-6">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <button onclick="showView('dashboard')" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 text-gray-700"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Faculty & Teachers Directory</h2>
+                            <p class="text-sm text-gray-500">30 Active Educators Assigned</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="teachers-grid">
+                    <!-- Populated via JS -->
+                </div>
+            </section>
+
+            <!-- VIEW 4: CLASSES DIRECTORY (DYNAMIC NODE CONTENT) -->
+            <section id="view-classes" class="hidden card-container p-6">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <button onclick="showView('dashboard')" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 text-gray-700"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Active Classes Overview</h2>
+                            <p class="text-sm text-gray-500">50 Registered Class Sections</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="classes-grid">
+                    <!-- Populated via JS -->
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <!-- GENERAL INTERACTIVE MODAL DIALOG -->
+    <div id="interactive-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden modal-fade">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-gray-200 transform transition-all">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-himc-blue flex items-center justify-center font-bold">
+                        <i data-lucide="info" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 id="modal-title" class="text-xl font-bold text-gray-900">Node Title</h3>
+                        <p id="modal-subtitle" class="text-xs font-semibold text-gray-500">Category Details</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="my-4 text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-2xl border border-gray-100" id="modal-body">
+                Detailed information regarding this node will appear here.
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-semibold rounded-full transition">
+                    Close
+                </button>
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-himc-blue hover:bg-blue-800 text-white text-sm font-semibold rounded-full transition">
+                    Acknowledge
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data for Nodes
+        const sampleStudents = [
+            { id: "2026-0001", name: "Juan Dela Cruz", grade: "Grade 11 - STEM A", status: "Active" },
+            { id: "2026-0002", name: "Maria Clara Santos", grade: "Grade 10 - Diamond", status: "Active" },
+            { id: "2026-0003", name: "Jose Rizal", grade: "Grade 12 - HUMSS", status: "Active" },
+            { id: "2026-0004", name: "Andres Bonifacio", grade: "Grade 9 - Ruby", status: "Active" },
+            { id: "2026-0005", name: "Emilio Aguinaldo", grade: "Grade 11 - ABM", status: "Active" },
+            { id: "2026-0006", name: "Apolinario Mabini", grade: "Grade 12 - STEM B", status: "Pending Review" },
+        ];
+
+        const sampleTeachers = [
+            { name: "Dr. Roberto Santos", dept: "Science & Physics", classes: "4 Classes", email: "rsantos@himc.edu.ph" },
+            { name: "Prof. Elena Reyes", dept: "Mathematics", classes: "5 Classes", email: "ereyes@himc.edu.ph" },
+            { name: "Ms. Carmen Valdez", dept: "English & Lit", classes: "3 Classes", email: "cvaldez@himc.edu.ph" },
+            { name: "Mr. Fernando Poe", dept: "Physical Education", classes: "6 Classes", email: "fpoe@himc.edu.ph" },
+            { name: "Mrs. Teresa Aquino", dept: "Social Sciences", classes: "4 Classes", email: "taquino@himc.edu.ph" },
+            { name: "Engr. Marco Cruz", dept: "Computer Science", classes: "5 Classes", email: "mcruz@himc.edu.ph" },
+        ];
+
+        const sampleClasses = [
+            { name: "Grade 11 - STEM Physics", room: "Lab 302", students: 42, teacher: "Dr. Roberto Santos" },
+            { name: "Grade 10 - Advance Algebra", room: "Room 204", students: 38, teacher: "Prof. Elena Reyes" },
+            { name: "Grade 12 - World Literature", room: "Room 101", students: 40, teacher: "Ms. Carmen Valdez" },
+            { name: "Grade 9 - General Science", room: "Lab 102", students: 35, teacher: "Dr. Roberto Santos" },
+            { name: "Grade 11 - Web Development", room: "Comp Lab 1", students: 30, teacher: "Engr. Marco Cruz" },
+            { name: "Grade 8 - Philippine History", room: "Room 202", students: 36, teacher: "Mrs. Teresa Aquino" },
+        ];
+
+        // Function to switch sub-views
+        function showView(viewId) {
+            const views = ['dashboard', 'students', 'teachers', 'classes'];
+            views.forEach(v => {
+                const el = document.getElementById('view-' + v);
+                if (el) el.classList.add('hidden');
+
+                const navBtn = document.getElementById('nav-btn-' + v);
+                if (navBtn) navBtn.classList.remove('active');
+            });
+
+            const activeView = document.getElementById('view-' + viewId);
+            if (activeView) activeView.classList.remove('hidden');
+
+            const activeBtn = document.getElementById('nav-btn-' + viewId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Modal triggers
+        function openModal(title, subtitle, content) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-subtitle').innerText = subtitle;
+            document.getElementById('modal-body').innerHTML = content;
+            
+            const modal = document.getElementById('interactive-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('interactive-modal').classList.add('hidden');
+        }
+
+        // Render Tables & Grids
+        function renderStudents(list) {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = list.map(s => `
+                <tr class="hover:bg-blue-50/50 transition">
+                    <td class="py-3 px-4 font-mono text-xs font-bold text-gray-700">${s.id}</td>
+                    <td class="py-3 px-4 font-bold text-gray-900">${s.name}</td>
+                    <td class="py-3 px-4 font-medium text-gray-600">${s.grade}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 text-xs font-bold rounded-full ${s.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                            ${s.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="openModal('Student Profile', '${s.name} (${s.id})', 'Grade: ${s.grade}<br>Enrolled: 1st Term S.Y 2026-2027<br>Attendance: 98%')" class="text-himc-blue hover:underline font-semibold text-xs">
+                            View Profile
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterStudents() {
+            const query = document.getElementById('student-search').value.toLowerCase();
+            const filtered = sampleStudents.filter(s => s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query));
+            renderStudents(filtered);
+        }
+
+        function renderTeachers() {
+            const grid = document.getElementById('teachers-grid');
+            grid.innerHTML = sampleTeachers.map(t => `
+                <div onclick="openModal('Faculty Info', '${t.name}', 'Department: ${t.dept}<br>Assigned Load: ${t.classes}<br>Contact: ${t.email}')" class="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition cursor-pointer hover:border-blue-300">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 text-himc-blue font-bold flex items-center justify-center shrink-0">
+                        ${t.name.split(' ').map(n=>n[0]).join('')}
+                    </div>
+                    <div class="overflow-hidden">
+                        <h4 class="font-bold text-gray-900 text-base">${t.name}</h4>
+                        <p class="text-xs text-himc-blue font-semibold">${t.dept}</p>
+                        <p class="text-xs text-gray-400 mt-1">${t.classes} • ${t.email}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderClasses() {
+            const grid = document.getElementById('classes-grid');
+            grid.innerHTML = sampleClasses.map(c => `
+                <div onclick="openModal('Class Roster', '${c.name}', 'Room: ${c.room}<br>Instructor: ${c.teacher}<br>Enrolled Students: ${c.students}')" class="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md transition cursor-pointer hover:border-blue-300">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-gray-900 text-base">${c.name}</h4>
+                        <span class="text-xs bg-sky-100 text-sky-800 font-bold px-2.5 py-0.5 rounded-full">${c.room}</span>
+                    </div>
+                    <p class="text-xs text-gray-600 font-medium">Instructor: ${c.teacher}</p>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500">
+                        <span>Capacity: ${c.students}/45 Students</span>
+                        <span class="text-himc-blue font-bold">Manage Section &rarr;</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleGlobalSearch(e) {
+            if (e.key === 'Enter') {
+                const val = e.target.value.toLowerCase();
+                if (val.includes('student') || val.includes('juan') || val.includes('maria')) {
+                    showView('students');
+                } else if (val.includes('teacher') || val.includes('faculty') || val.includes('prof')) {
+                    showView('teachers');
+                } else if (val.includes('class') || val.includes('grade') || val.includes('room')) {
+                    showView('classes');
+                } else {
+                    openModal('Search Results', `Query: "${e.target.value}"`, `Found matching nodes across system modules: Masterlist (8), Faculty (2), Classes (5).`);
+                }
+            }
+        }
+
+        // Initialize Lucide Icons and Render Data on Load
+        window.onload = function() {
+            lucide.createIcons();
+            renderStudents(sampleStudents);
+            renderTeachers();
+            renderClasses();
+        };
+    </script>
+</body>
+</html>

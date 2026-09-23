@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIMC School Management Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        himc: {
+                            blue: '#0B31A5',
+                            darkBlue: '#002B80',
+                            navy: '#061D6E',
+                            bgLight: '#FAF8F3',
+                            cardBg: 'rgba(255, 255, 255, 0.88)',
+                            pillBorder: '#D1D5DB',
+                            textDark: '#111827',
+                            indicatorGreen: '#86EFAC',
+                            indicatorYellow: '#FDE047',
+                            indicatorRed: '#F87171'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(550deg, #FCFBF5 0%, #FAF6EE 35%, #EFF3FD 70%, #E2EBFB 100%);
+            min-height: 100vh;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Glassmorphism Card Container */
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid #E5E7EB;
+            border-radius: 1.75rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Circular Sidebar Navigation Buttons */
+        .sidebar-btn {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            color: #1E3A8A;
+            border: 1.5px solid #CBD5E1;
+            background-color: #FFFFFF;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-btn:hover {
+            border-color: #0B31A5;
+            color: #0B31A5;
+            transform: translateY(-1px);
+        }
+
+        .sidebar-btn.active {
+            background-color: #0B31A5;
+            color: #FFFFFF;
+            border-color: #0B31A5;
+            box-shadow: 0 4px 14px rgba(11, 49, 165, 0.3);
+        }
+
+        /* Card Node Hover effects */
+        .interactive-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+            border-color: #93C5FD;
+        }
+
+        /* Table Alternate Soft Zebra Row */
+        .table-zebra-even {
+            background-color: #EEF4FF;
+        }
+        .table-zebra-odd {
+            background-color: #FFFFFF;
+        }
+        .table-zebra-even:hover, .table-zebra-odd:hover {
+            background-color: #E2ECFF;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-5 md:p-8 flex flex-col min-h-screen">
+
+    <div class="max-w-[1400px] w-full mx-auto flex flex-col flex-1">
+
+        <!-- TOP HEADER BAR -->
+        <header class="flex items-center justify-between gap-4 mb-6">
+            <!-- Logo Box -->
+            <div class="flex items-center cursor-pointer" onclick="showView('dashboard')">
+                <img src="img/himc-logo.jpg" alt="HIMC Logo" class="h-10 w-auto object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x40/0B31A5/FFF?text=HIMC'">
+            </div>
+
+            <!-- Center Navigation Capsules -->
+            <nav class="hidden md:flex items-center gap-3">
+                <button onclick="openDialog('Manage Users', 'System User Directory', 'Configure system access levels and user profiles.')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                    Manage Users
+                </button>
+                <button onclick="switchNodeView('masterlist')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                    Masterlist
+                </button>
+                <button onclick="switchNodeView('dashboard')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                    Classes
+                </button>
+                <button onclick="openDialog('Academic Reports', 'System Analytics', 'Generate quarterly deportment and grade progress reports.')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                    Reports
+                </button>
+            </nav>
+
+            <!-- Menu Button Right -->
+            <button onclick="openDialog('Options', 'System Preferences', 'Configure active term settings and notifications.')" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-black/5 transition" title="More Options">
+                <i data-lucide="more-vertical" class="w-6 h-6"></i>
+            </button>
+        </header>
+
+        <!-- MAIN CONTENT AREA (SIDEBAR + VIEWS) -->
+        <div class="flex flex-1 gap-6 md:gap-8 items-start">
+
+            <aside class="flex flex-col items-center justify-between py-1 gap-6 min-h-[calc(100vh-140px)] sticky top-6 z-20 shrink-0">
+                <div class="flex flex-col items-center gap-5">
+                    <!-- Sidebar Node 1: Dashboard -->
+                    <button id="sidebar-node-1" onclick="switchNodeView('dashboard')" class="sidebar-btn active" title="Dashboard View (Node 1)">
+                        <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <!-- Sidebar Node 2: Masterlist & School Records -->
+                    <button id="sidebar-node-2" onclick="switchNodeView('masterlist')" class="sidebar-btn" title="Masterlist & Teachers (Node 2)">
+                        <i data-lucide="id-card" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Sidebar Node 3: Folder / Dynamic -->
+                    <button id="sidebar-node-3" onclick="openDialog('Classes Overview', 'Folder Directory', 'Viewing class files and section archives.')" class="sidebar-btn" title="Classes Archive">
+                        <i data-lucide="folder" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Sidebar Node 4: Settings / Badges -->
+                    <button id="sidebar-node-4" onclick="openDialog('Settings', 'System Configuration', 'Adjust term parameters and system logs.')" class="sidebar-btn" title="Settings">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Sidebar Node 5: History Logs -->
+                    <button id="sidebar-node-5" onclick="openDialog('Audit Trail', 'Activity Logs', 'Recent updates across S.Y 2026-2027.')" class="sidebar-btn" title="Activity Logs">
+                        <i data-lucide="history" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Bottom Logout Button -->
+                <button onclick="openDialog('Sign Out', 'Logout Confirmation', 'Are you sure you want to log out of the HIMC Portal?')" class="sidebar-btn mt-auto text-gray-600" title="Log Out">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </aside>
+
+            <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+            <div class="flex-1 w-full overflow-hidden">
+
+                <main id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- LEFT 8-COLUMNS SECTION -->
+                    <div class="lg:col-span-8 flex flex-col gap-6">
+                        
+                        <!-- Header & Search Bar -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Welcome Back, John Doe!</h1>
+                                <p class="text-sm font-medium text-gray-500 mt-0.5">S.Y 2026-2027 | 1st Term</p>
+                            </div>
+
+                            <!-- Search Input -->
+                            <div class="relative w-full sm:w-72">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" placeholder="Search" class="w-full pl-11 pr-4 py-2.5 bg-white/90 border border-gray-300 rounded-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-himc-blue shadow-xs transition-all">
+                            </div>
+                        </div>
+
+                        <!-- CARD 1: QUICK OVERVIEW -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4">Quick Overview</h2>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <!-- Stat 1: Students Enrolled -->
+                                <div onclick="switchNodeView('masterlist')" class="interactive-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">800</span>
+                                        <div class="w-16 h-1.5 bg-green-400 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-semibold text-gray-600">Students Enrolled</span>
+                                </div>
+
+                                <!-- Stat 2: Teachers -->
+                                <div onclick="switchNodeView('masterlist')" class="interactive-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">30</span>
+                                        <div class="w-16 h-1.5 bg-yellow-400 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-semibold text-gray-600">Teachers</span>
+                                </div>
+
+                                <!-- Stat 3: Classes -->
+                                <div onclick="openDialog('Classes Overview', '50 Active Classes', '50 registered class sections across High School and Senior High.')" class="interactive-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">50</span>
+                                        <div class="w-16 h-1.5 bg-sky-400 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-semibold text-gray-600">Classes</span>
+                                </div>
+
+                                <!-- Stat 4: Pending Action -->
+                                <div onclick="openDialog('Pending Action Items', 'Requires Immediate Action', '1. Section allocation approval.<br>2. Transferee document review.')" class="interactive-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">2</span>
+                                        <div class="w-16 h-1.5 bg-red-400 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-semibold text-gray-600">Pending Action</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- CARD 2: ACADEMIC REPORTING PROGRESS -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <h2 class="text-lg font-bold text-gray-900 mb-5">Academic Reporting Progress</h2>
+
+                            <div class="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 flex flex-col gap-5 shadow-xs">
+                                <!-- Progress Row 1 -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-gray-100">
+                                    <span class="text-sm sm:text-base font-bold text-gray-800 sm:w-1/3">Overall Term Progress</span>
+                                    <div class="flex items-center gap-4 sm:w-2/3">
+                                        <div class="flex-1 bg-gray-300 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-green-400 h-full rounded-full" style="width: 80%;"></div>
+                                        </div>
+                                        <span class="text-sm sm:text-base font-extrabold text-gray-900 min-w-[40px] text-right">80%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Row 2 -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <span class="text-sm sm:text-base font-bold text-gray-700 sm:w-1/3">Academic Grade Progress</span>
+                                    <div class="flex items-center gap-4 sm:w-2/3">
+                                        <div class="flex-1 bg-gray-300 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-green-400 h-full rounded-full" style="width: 90%;"></div>
+                                        </div>
+                                        <span class="text-sm sm:text-base font-extrabold text-gray-900 min-w-[40px] text-right">90%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Row 3 -->
+                                <div class="flex items-center justify-between pt-1">
+                                    <span class="text-sm sm:text-base font-semibold text-gray-600">Deportment Status</span>
+                                    <span class="text-sm sm:text-base font-bold text-red-500">Pending Finalization</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- CARD 3: RECENT ACTIVITY -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
+
+                            <div class="flex flex-col gap-3">
+                                <div class="bg-white border border-gray-200 rounded-full px-6 py-3.5 flex items-center justify-between shadow-2xs hover:border-blue-300 transition">
+                                    <span class="text-sm sm:text-base font-bold text-gray-800">Teacher finalized gradebook</span>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-400">just now</span>
+                                </div>
+
+                                <div class="bg-white border border-gray-200 rounded-full px-6 py-3.5 flex items-center justify-between shadow-2xs hover:border-blue-300 transition">
+                                    <span class="text-sm sm:text-base font-bold text-gray-800">Masterlist Updated</span>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-400">5 hrs ago</span>
+                                </div>
+
+                                <div class="bg-white border border-gray-200 rounded-full px-6 py-3.5 flex items-center justify-between shadow-2xs hover:border-blue-300 transition">
+                                    <span class="text-sm sm:text-base font-bold text-gray-800">User Account Role Changed</span>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-400">7 hrs ago</span>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+
+                    <!-- RIGHT 4-COLUMNS SECTION -->
+                    <div class="lg:col-span-4 flex flex-col gap-6">
+
+                        <!-- USER PROFILE BADGE -->
+                        <div class="bg-white/90 border border-gray-200 rounded-3xl p-4 flex items-center gap-4 shadow-xs">
+                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+                                <i data-lucide="user" class="w-7 h-7"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h3 class="font-bold text-gray-900 text-base leading-tight truncate">John Doe</h3>
+                                <p class="text-xs text-gray-500 font-medium truncate mt-0.5">johndoe@himc.edu.ph</p>
+                            </div>
+                        </div>
+
+                        <!-- NEEDS ATTENTION CARD -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4">Needs Attention</h2>
+
+                            <div class="flex flex-col gap-3.5">
+                                <div onclick="openDialog('5 Reports Incomplete', 'Needs Attention', '1. Senior High Attendance<br>2. Faculty Evaluation<br>3. Science Dept Summary')" class="bg-white border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 shadow-2xs cursor-pointer hover:border-amber-300 transition">
+                                    <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                    </div>
+                                    <span class="text-sm sm:text-base font-bold text-gray-800">5 Reports Incomplete</span>
+                                </div>
+
+                                <div onclick="openDialog('1 Import requires review', 'Needs Attention', 'Duplicate LRN entry found in batch import student_masterlist_q1.csv.')" class="bg-white border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 shadow-2xs cursor-pointer hover:border-amber-300 transition">
+                                    <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                    </div>
+                                    <span class="text-sm sm:text-base font-bold text-gray-800">1 import requires review</span>
+                                </div>
+
+                                <div onclick="openDialog('2 Classes need setup', 'Needs Attention', '1. Grade 7 - Diamond (No Homeroom Advisor)<br>2. Grade 12 - STEM B (Physics Lab Unassigned)')" class="bg-white border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 shadow-2xs cursor-pointer hover:border-red-300 transition">
+                                    <div class="w-7 h-7 rounded-lg bg-red-500 flex items-center justify-center text-white font-bold shrink-0 text-xs">
+                                        !
+                                    </div>
+                                    <span class="text-sm sm:text-base font-bold text-gray-800">2 Classes need setup</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- THIS WEEK CALENDAR -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <div class="flex items-center justify-between mb-5">
+                                <h2 class="text-lg font-bold text-gray-900">This Week</h2>
+                                
+                                <div class="flex items-center gap-2">
+                                    <button class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-300 transition">
+                                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                    </button>
+                                    <span class="text-xs sm:text-sm font-bold text-gray-800">September 2026</span>
+                                    <button class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-300 transition">
+                                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Calendar Day Pills -->
+                            <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center">
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Sun</span>
+                                    <span class="text-sm font-bold text-gray-800">21</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Mon</span>
+                                    <span class="text-sm font-bold text-gray-800">22</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Tues</span>
+                                    <span class="text-sm font-bold text-gray-800">23</span>
+                                </div>
+
+                                <!-- Wed Active Pill -->
+                                <div class="bg-himc-blue border border-himc-blue rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-md text-white">
+                                    <span class="text-xs font-medium opacity-80">Wed</span>
+                                    <span class="text-base font-extrabold">24</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Thurs</span>
+                                    <span class="text-sm font-bold text-gray-800">25</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Fri</span>
+                                    <span class="text-sm font-bold text-gray-800">26</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Sat</span>
+                                    <span class="text-sm font-bold text-gray-800">27</span>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+
+                </main>
+
+                <main id="view-masterlist" class="hidden flex-col gap-6">
+                    
+                    <!-- MASTERLIST HEADER & STATS BAR -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div>
+                            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Masterlist</h1>
+                            <p class="text-sm font-medium text-gray-500 mt-0.5">S.Y 2026-2027 | 1st Term</p>
+
+                            <!-- Sub-Pills Switches -->
+                            <div class="flex items-center gap-2.5 mt-4">
+                                <button class="px-7 py-2 bg-himc-darkBlue text-white rounded-full text-xs font-bold shadow-xs">
+                                    People
+                                </button>
+                                <button onclick="switchNodeView('dashboard')" class="px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition">
+                                    Classes
+                                </button>
+                                <button class="px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition">
+                                    Masterlist
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TOP RIGHT METRIC SUMMARY CARD -->
+                        <div class="bg-white/90 border border-gray-200 rounded-3xl p-5 shadow-xs flex items-center justify-between gap-6 sm:gap-10">
+                            <!-- Metric 1: Students Enrolled -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-8 bg-green-400 rounded-full"></div>
+                                <div>
+                                    <span class="text-2xl font-black text-gray-900 leading-none block">800</span>
+                                    <span class="text-xs font-medium text-gray-500">Students Enrolled</span>
+                                </div>
+                            </div>
+
+                            <!-- Metric 2: Teachers -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-8 bg-yellow-400 rounded-full"></div>
+                                <div>
+                                    <span class="text-2xl font-black text-gray-900 leading-none block">30</span>
+                                    <span class="text-xs font-medium text-gray-500">Teachers</span>
+                                </div>
+                            </div>
+
+                            <!-- Metric 3: Needs Action -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-8 bg-red-400 rounded-full"></div>
+                                <div>
+                                    <span class="text-2xl font-black text-gray-900 leading-none block">2</span>
+                                    <span class="text-xs font-medium text-gray-500">Needs Action</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SCHOOL RECORDS CONTAINER -->
+                    <div class="glass-card p-6 md:p-8">
+                        
+                        <!-- Header & Add User Button -->
+                        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">School Records</h2>
+                            <button onclick="openDialog('Add User Record', 'Create New User Account', 'Select account type: Faculty Teacher or Student record.')" class="px-6 py-2.5 bg-himc-darkBlue hover:bg-blue-900 text-white rounded-full text-xs font-bold transition flex items-center gap-2 shadow-xs">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                <span>Add User Record</span>
+                            </button>
+                        </div>
+
+                        <!-- TAB TOGGLES: STUDENTS VS TEACHERS -->
+                        <div class="border-b border-gray-200 mb-6">
+                            <div class="flex gap-8">
+                                <button id="tab-btn-students" onclick="switchRecordTab('students')" class="pb-3 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-800 transition">
+                                    Students
+                                </button>
+                                <button id="tab-btn-teachers" onclick="switchRecordTab('teachers')" class="pb-3 text-sm font-bold text-himc-darkBlue border-b-2 border-himc-darkBlue transition">
+                                    Teachers
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- SEARCH & CONTROL BAR -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                            <!-- Search Bar -->
+                            <div class="relative w-full sm:w-80">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input id="record-search-input" onkeyup="filterRecordTable()" type="text" placeholder="Search" class="w-full pl-11 pr-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-himc-blue">
+                            </div>
+
+                            <!-- Dropdowns -->
+                            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                <select class="px-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-semibold text-gray-700 focus:outline-none cursor-pointer">
+                                    <option>Filter By</option>
+                                    <option>Department 9</option>
+                                    <option>Active Status</option>
+                                </select>
+                                <select class="px-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-semibold text-gray-700 focus:outline-none cursor-pointer">
+                                    <option>Sort By</option>
+                                    <option>Name (A-Z)</option>
+                                    <option>Teacher ID</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- TEACHERS TABLE (EXACT MOCKUP MATCH) -->
+                        <div class="overflow-x-auto">
+                            <table id="table-teachers" class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="text-xs font-bold text-gray-900 border-b border-gray-200">
+                                        <th class="pb-3 px-4">No</th>
+                                        <th class="pb-3 px-4">Teacher ID</th>
+                                        <th class="pb-3 px-4">Name</th>
+                                        <th class="pb-3 px-4">Department</th>
+                                        <th class="pb-3 px-4">Email</th>
+                                        <th class="pb-3 px-4">Status</th>
+                                        <th class="pb-3 px-4 text-right"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-transparent text-xs font-medium">
+                                    <!-- Row 1 -->
+                                    <tr class="table-zebra-even transition">
+                                        <td class="py-4 px-4 text-gray-600">1</td>
+                                        <td class="py-4 px-4 text-gray-500 font-mono">2026-0001</td>
+                                        <td class="py-4 px-4 font-semibold text-gray-800">Jane Doe</td>
+                                        <td class="py-4 px-4 text-gray-600">9</td>
+                                        <td class="py-4 px-4 text-gray-500">jane@himc.edu.ph</td>
+                                        <td class="py-4 px-4 text-gray-700 font-semibold">Active</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <button onclick="openDialog('Edit Record', 'Jane Doe (2026-0001)', 'Department: 9<br>Email: jane@himc.edu.ph')" class="p-1 text-gray-800 hover:text-himc-blue"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                    <!-- Row 2 -->
+                                    <tr class="table-zebra-odd transition">
+                                        <td class="py-4 px-4 text-gray-600">2</td>
+                                        <td class="py-4 px-4 text-gray-500 font-mono">2026-0002</td>
+                                        <td class="py-4 px-4 font-semibold text-gray-800">John Doe</td>
+                                        <td class="py-4 px-4 text-gray-600">9</td>
+                                        <td class="py-4 px-4 text-gray-500">john@himc.edu.ph</td>
+                                        <td class="py-4 px-4 text-gray-700 font-semibold">Active</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <button onclick="openDialog('Edit Record', 'John Doe (2026-0002)', 'Department: 9<br>Email: john@himc.edu.ph')" class="p-1 text-gray-800 hover:text-himc-blue"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                    <!-- Row 3 -->
+                                    <tr class="table-zebra-even transition">
+                                        <td class="py-4 px-4 text-gray-600">3</td>
+                                        <td class="py-4 px-4 text-gray-500 font-mono">2026-0003</td>
+                                        <td class="py-4 px-4 font-semibold text-gray-800">John Paul</td>
+                                        <td class="py-4 px-4 text-gray-600">9</td>
+                                        <td class="py-4 px-4 text-gray-500">paul@himc.edu.ph</td>
+                                        <td class="py-4 px-4 text-gray-700 font-semibold">Active</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <button onclick="openDialog('Edit Record', 'John Paul (2026-0003)', 'Department: 9<br>Email: paul@himc.edu.ph')" class="p-1 text-gray-800 hover:text-himc-blue"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                    <!-- Row 4 -->
+                                    <tr class="table-zebra-odd transition">
+                                        <td class="py-4 px-4 text-gray-600">4</td>
+                                        <td class="py-4 px-4 text-gray-500 font-mono">2026-0004</td>
+                                        <td class="py-4 px-4 font-semibold text-gray-800">Johnny Paige</td>
+                                        <td class="py-4 px-4 text-gray-600">9</td>
+                                        <td class="py-4 px-4 text-gray-500">paige@himc.edu.ph</td>
+                                        <td class="py-4 px-4 text-gray-700 font-semibold">Active</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <button onclick="openDialog('Edit Record', 'Johnny Paige (2026-0004)', 'Department: 9<br>Email: paige@himc.edu.ph')" class="p-1 text-gray-800 hover:text-himc-blue"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                    <!-- Row 5 -->
+                                    <tr class="table-zebra-even transition">
+                                        <td class="py-4 px-4 text-gray-600">5</td>
+                                        <td class="py-4 px-4 text-gray-500 font-mono">2026-0005</td>
+                                        <td class="py-4 px-4 font-semibold text-gray-800">Johnny Doe</td>
+                                        <td class="py-4 px-4 text-gray-600">9</td>
+                                        <td class="py-4 px-4 text-gray-500">doe@himce.edu.ph</td>
+                                        <td class="py-4 px-4 text-gray-700 font-semibold">Active</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <button onclick="openDialog('Edit Record', 'Johnny Doe (2026-0005)', 'Department: 9<br>Email: doe@himce.edu.ph')" class="p-1 text-gray-800 hover:text-himc-blue"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- STUDENTS TABLE (DYNAMIC TAB SWITCH) -->
+                            <table id="table-students" class="w-full text-left border-collapse hidden">
+                                <thead>
+                                    <tr class="text-xs font-bold text-gray-900 border-b border-gray-200">
+                                        <th class="pb-3 px-4">No</th>
+                                        <th class="pb-3 px-4">LRN</th>
+                                        <th class="pb-3 px-4">Name</th>
+                                        <th class="pb-3 px-4">Grade</th>
+                                        <th class="pb-3 px-4">Section</th>
+                                        <th class="pb-3 px-4">Status</th>
+                                        <th class="pb-3 px-4 text-right"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-transparent text-xs font-medium">
+                                    <tr class="table-zebra-even transition">
+                                        <td class="py-4 px-4 text-gray-600">1</td>
+                                        <td class="py-4 px-4 text-gray-500 font-mono">2026-0001</td>
+                                        <td class="py-4 px-4 font-semibold text-gray-800">Jane Doe</td>
+                                        <td class="py-4 px-4 text-gray-600">9</td>
+                                        <td class="py-4 px-4 text-gray-600">St. Kostka</td>
+                                        <td class="py-4 px-4 text-gray-700 font-semibold">Active</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <button onclick="openDialog('Edit Record', 'Jane Doe (2026-0001)', 'Grade 9 - St. Kostka')" class="p-1 text-gray-800 hover:text-himc-blue"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-zebra-odd transition">
+                                        <td class="py-4 px-4 text-gray-600">2</td>
+                                        <td class="py-4 px-4 text-gray-500 font-mono">2026-0002</td>
+                                        <td class="py-4 px-4 font-semibold text-gray-800">John Doe</td>
+                                        <td class="py-4 px-4 text-gray-600">9</td>
+                                        <td class="py-4 px-4 text-gray-600">St. Paul</td>
+                                        <td class="py-4 px-4 text-gray-700 font-semibold">Active</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <button onclick="openDialog('Edit Record', 'John Doe (2026-0002)', 'Grade 9 - St. Paul')" class="p-1 text-gray-800 hover:text-himc-blue"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- PAGINATION CONTROLS -->
+                        <div class="flex justify-end items-center gap-1.5 mt-6">
+                            <button class="w-7 h-7 bg-himc-darkBlue text-white rounded font-bold text-xs">1</button>
+                            <button class="w-7 h-7 bg-white border border-gray-300 text-gray-700 rounded font-bold text-xs hover:bg-gray-50">2</button>
+                            <button class="w-7 h-7 bg-white border border-gray-300 text-gray-700 rounded font-bold text-xs hover:bg-gray-50">3</button>
+                        </div>
+
+                    </div>
+
+                </main>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="general-dialog" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-200">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 id="dialog-title" class="text-lg font-extrabold text-gray-900">Dialog Title</h3>
+                    <p id="dialog-subtitle" class="text-xs font-semibold text-gray-500">Category</p>
+                </div>
+                <button onclick="closeDialog()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="dialog-body" class="my-4 text-xs sm:text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                Dialog content detail description.
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeDialog()" class="px-5 py-2 bg-himc-darkBlue text-white text-xs font-bold rounded-full hover:bg-blue-900 transition">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch between Sidebar Node Views (Node 1 = Dashboard, Node 2 = Masterlist)
+        function switchNodeView(viewName) {
+            const dashboardView = document.getElementById('view-dashboard');
+            const masterlistView = document.getElementById('view-masterlist');
+            const btn1 = document.getElementById('sidebar-node-1');
+            const btn2 = document.getElementById('sidebar-node-2');
+
+            if (viewName === 'masterlist') {
+                dashboardView.classList.add('hidden');
+                masterlistView.classList.remove('hidden');
+                masterlistView.classList.add('flex');
+
+                btn1.classList.remove('active');
+                btn2.classList.add('active');
+            } else {
+                masterlistView.classList.add('hidden');
+                masterlistView.classList.remove('flex');
+                dashboardView.classList.remove('hidden');
+
+                btn2.classList.remove('active');
+                btn1.classList.add('active');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Switch between Students & Teachers tabs on Masterlist
+        function switchRecordTab(tab) {
+            const tableTeachers = document.getElementById('table-teachers');
+            const tableStudents = document.getElementById('table-students');
+            const btnTeachers = document.getElementById('tab-btn-teachers');
+            const btnStudents = document.getElementById('tab-btn-students');
+
+            if (tab === 'teachers') {
+                tableTeachers.classList.remove('hidden');
+                tableStudents.classList.add('hidden');
+
+                btnTeachers.className = "pb-3 text-sm font-bold text-himc-darkBlue border-b-2 border-himc-darkBlue transition";
+                btnStudents.className = "pb-3 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-800 transition";
+            } else {
+                tableStudents.classList.remove('hidden');
+                tableTeachers.classList.add('hidden');
+
+                btnStudents.className = "pb-3 text-sm font-bold text-himc-darkBlue border-b-2 border-himc-darkBlue transition";
+                btnTeachers.className = "pb-3 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-800 transition";
+            }
+        }
+
+        // Filter Table Rows in Masterlist
+        function filterRecordTable() {
+            const query = document.getElementById('record-search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#table-teachers tbody tr, #table-students tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        // Modal Handlers
+        function openDialog(title, subtitle, body) {
+            document.getElementById('dialog-title').innerText = title;
+            document.getElementById('dialog-subtitle').innerText = subtitle;
+            document.getElementById('dialog-body').innerHTML = body;
+            document.getElementById('general-dialog').classList.remove('hidden');
+        }
+
+        function closeDialog() {
+            document.getElementById('general-dialog').classList.add('hidden');
+        }
+
+        // Initialize icons on window load
+        window.onload = function() {
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
