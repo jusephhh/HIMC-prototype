@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIMC Teacher</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        himc: {
+                            blue: '#0B31A5',
+                            darkBlue: '#002B80',
+                            navy: '#061D6E',
+                            bgLight: '#FAF8F3',
+                            cardBg: 'rgba(255, 255, 255, 0.88)',
+                            pillBorder: '#D1D5DB',
+                            textDark: '#111827',
+                            indicatorGreen: '#86EFAC',
+                            indicatorYellow: '#FDE047',
+                            indicatorRed: '#F87171'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(550deg, #FCFBF5 0%, #FAF6EE 35%, #EFF3FD 70%, #E2EBFB 100%);
+            min-height: 100vh;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Glassmorphism Card Container */
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid #E5E7EB;
+            border-radius: 1.75rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Circular Sidebar Navigation Buttons */
+        .sidebar-btn {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            color: #1E3A8A;
+            border: 1.5px solid #CBD5E1;
+            background-color: #FFFFFF;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-btn:hover {
+            border-color: #0B31A5;
+            color: #0B31A5;
+            transform: translateY(-1px);
+        }
+
+        .sidebar-btn.active {
+            background-color: #0B31A5;
+            color: #FFFFFF;
+            border-color: #0B31A5;
+            box-shadow: 0 4px 14px rgba(11, 49, 165, 0.3);
+        }
+
+        /* Card Node Hover effects */
+        .interactive-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+            border-color: #93C5FD;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-5 md:p-8 flex flex-col min-h-screen">
+
+    <div class="max-w-[1400px] w-full mx-auto flex flex-col flex-1">
+
+        <!-- TOP HEADER BAR -->
+        <header class="flex items-center justify-between gap-4 mb-6">
+           <!-- Logo Box -->
+            <div class="flex items-center cursor-pointer" onclick="switchNodeView('dashboard')">
+                <img src="img/himc-logo-transparent2.png" alt="HIMC Logo" class="h-10 w-auto object-contain">
+            </div>
+
+            <!-- Right-aligned Actions & Options -->
+            <div class="flex items-center gap-3 ml-auto">
+                <!-- Navigation Capsules (Action Pills) -->
+                <nav class="hidden md:flex items-center gap-3">
+                    <button onclick="openDialog('Manage Users', 'System User Directory', 'Configure system access levels and user profiles.')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                        Create Activity
+                    </button>
+                    <button onclick="switchNodeView('masterlist')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                        Post Content
+                    </button>
+                    <button onclick="switchNodeView('dashboard')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                        Create Lesson
+                    </button>
+                </nav>
+
+                <!-- Menu Button Right -->
+                <button onclick="openDialog('Options', 'System Preferences', 'Configure active term settings and notifications.')" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-black/5 transition" title="More Options">
+                    <i data-lucide="more-vertical" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA (SIDEBAR + VIEWS) -->
+        <div class="flex flex-1 gap-6 md:gap-8 items-start">
+
+            <aside class="flex flex-col items-center justify-between py-1 gap-6 min-h-[calc(100vh-140px)] sticky top-6 z-20 shrink-0">
+                <div class="flex flex-col items-center gap-5">
+                    <!-- Sidebar Node 1: Dashboard -->
+                    <button id="sidebar-node-1" onclick="switchNodeView('dashboard')" class="sidebar-btn active" title="Dashboard View (Node 1)">
+                        <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <!-- Sidebar Node 2: Masterlist & School Records -->
+                    <button id="sidebar-node-2" onclick="switchNodeView('masterlist')" class="sidebar-btn" title="Masterlist & Classes (Node 2)">
+                        <i data-lucide="id-card" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Sidebar Node 3: Folder / Dynamic -->
+                    <button id="sidebar-node-3" onclick="openDialog('Classes Overview', 'Folder Directory', 'Viewing class files and section archives.')" class="sidebar-btn" title="Classes Archive">
+                        <i data-lucide="folder" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Bottom Logout Button -->
+                <button onclick="openDialog('Sign Out', 'Logout Confirmation', 'Are you sure you want to log out of the HIMC Portal?')" class="sidebar-btn mt-auto text-gray-600" title="Log Out">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </aside>
+
+            <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+            <div class="flex-1 w-full overflow-hidden">
+
+                <main id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- LEFT 8-COLUMNS SECTION -->
+                    <div class="lg:col-span-8 flex flex-col gap-6">
+                        
+                        <!-- Header -->
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Welcome Back, Sir John Doe!</h1>
+                            <p class="text-sm font-medium text-gray-400 mt-0.5">S.Y 2026-2027 | 1st Term</p>
+                        </div>
+
+                        <!-- CARD 1: QUICK OVERVIEW -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4">Quick Overview</h2>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <!-- Stat 1: Grade Completion -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">80%</span>
+                                        <div class="w-16 h-1.5 bg-lime-400 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-500">Grade Completion</span>
+                                </div>
+
+                                <!-- Stat 2: Students Handling -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">150</span>
+                                        <div class="w-16 h-1.5 bg-amber-300 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-500">Students Handling</span>
+                                </div>
+
+                                <!-- Stat 3: Today's Classes -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">6</span>
+                                        <div class="w-16 h-1.5 bg-sky-400 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-500">Today's Classes</span>
+                                </div>
+
+                                <!-- Stat 4: Pending Reviews -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-4 flex flex-col justify-between shadow-xs">
+                                    <div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 block mb-2">2</span>
+                                        <div class="w-16 h-1.5 bg-rose-400 rounded-full mb-3"></div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-500">Pending Reviews</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- CARD 2: UPCOMING CLASSES -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <h2 class="text-lg font-bold text-gray-900 mb-5">Upcoming Classes</h2>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                
+                                <!-- Class Card 1: Math -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-yellow-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Math: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">9:00 AM - 9:45 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">32 students · 4 lessons</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-4 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                                            Needs Review
+                                        </div>
+                                        <button class="px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class Card 2: Science -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-lime-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Science Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">9:45 AM - 10:30 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">32 students · 3 lessons</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-4 flex items-center justify-end">
+                                        <button class="px-3 py-1.5 bg-lime-400 hover:bg-lime-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class Card 3: Filipino -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-sky-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Filipino: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">10:30 AM - 11:15 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">32 students · 2 lessons</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-4 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                                            Needs Review
+                                        </div>
+                                        <button class="px-3 py-1.5 bg-sky-400 hover:bg-sky-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class Card 4: Values -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-purple-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Values: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">11:15 AM - 12:00 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">32 students · 2 lessons</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-4 flex items-center justify-end">
+                                        <button class="px-3 py-1.5 bg-purple-300 hover:bg-purple-400 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class Card 5: Social Studies -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-amber-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Social Studies:<br>Grade 9 - St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:00 PM - 1:45 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">32 students · 4 lessons</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-4 flex items-center justify-end">
+                                        <button class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class Card 6: TLE -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-rose-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">TLE: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:45 PM - 2:15 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">32 students · 2 lessons</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-4 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                                            Needs Review
+                                        </div>
+                                        <button class="px-3 py-1.5 bg-rose-400 hover:bg-rose-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+
+                    </div>
+
+                    <!-- RIGHT 4-COLUMNS SECTION -->
+                    <div class="lg:col-span-4 flex flex-col gap-6">
+
+                        <!-- SEARCH INPUT -->
+                        <div class="relative w-full">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="Search" class="w-full pl-11 pr-4 py-2.5 bg-white/90 border border-gray-300 rounded-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-himc-blue shadow-xs transition-all">
+                        </div>
+
+                        <!-- USER PROFILE BADGE -->
+                        <div class="bg-white/90 border border-gray-200 rounded-3xl p-4 flex items-center gap-4 shadow-xs">
+                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+                                <i data-lucide="user" class="w-7 h-7"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h3 class="font-bold text-gray-900 text-base leading-tight truncate">Teacher John Doe</h3>
+                                <p class="text-xs text-gray-400 font-medium truncate mt-0.5">johndoe-teacher@himc.edu.ph</p>
+                            </div>
+                        </div>
+
+                        <!-- UPCOMING TASKS CARD -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4">Upcoming Tasks</h2>
+
+                            <div class="flex flex-col gap-3.5">
+                                <!-- Task Item 1 -->
+                                <div onclick="openDialog('Review Grade 7-A submissions', 'Upcoming Task', '12 submissions pending review.')" class="bg-white border border-gray-200 rounded-full px-5 py-3.5 flex items-center gap-3.5 shadow-2xs cursor-pointer hover:border-amber-300 transition">
+                                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Review Grade 7-A submissions</h4>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-0.5">12 submissions · Deadline passed</p>
+                                    </div>
+                                </div>
+
+                                <!-- Task Item 2 -->
+                                <div onclick="openDialog('Review Grade 7-A submissions', 'Upcoming Task', '12 submissions pending review.')" class="bg-white border border-gray-200 rounded-full px-5 py-3.5 flex items-center gap-3.5 shadow-2xs cursor-pointer hover:border-amber-300 transition">
+                                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Review Grade 7-A submissions</h4>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-0.5">12 submissions · Deadline passed</p>
+                                    </div>
+                                </div>
+
+                                <!-- Task Item 3 -->
+                                <div onclick="openDialog('Complete Term 1 Gradebook', 'Upcoming Task', '78% complete. Finalize before due date.')" class="bg-white border border-gray-200 rounded-full px-5 py-3.5 flex items-center gap-3.5 shadow-2xs cursor-pointer hover:border-amber-300 transition">
+                                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Complete Term 1 Gradebook</h4>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-0.5">78% complete · Due in 2 weeks</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- THIS WEEK CALENDAR -->
+                        <section class="glass-card p-5 sm:p-6">
+                            <div class="flex items-center justify-between mb-5">
+                                <h2 class="text-lg font-bold text-gray-900">This Week</h2>
+                                
+                                <div class="flex items-center gap-2">
+                                    <button class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-300 transition">
+                                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                    </button>
+                                    <span class="text-xs sm:text-sm font-bold text-gray-800">September 2026</span>
+                                    <button class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-300 transition">
+                                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Calendar Day Pills -->
+                            <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center">
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Sun</span>
+                                    <span class="text-sm font-bold text-gray-800">21</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Mon</span>
+                                    <span class="text-sm font-bold text-gray-800">22</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Tues</span>
+                                    <span class="text-sm font-bold text-gray-800">23</span>
+                                </div>
+
+                                <!-- Wed Active Pill -->
+                                <div class="bg-himc-blue border border-himc-blue rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-md text-white">
+                                    <span class="text-xs font-medium opacity-80">Wed</span>
+                                    <span class="text-base font-extrabold">24</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Thurs</span>
+                                    <span class="text-sm font-bold text-gray-800">25</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Fri</span>
+                                    <span class="text-sm font-bold text-gray-800">26</span>
+                                </div>
+
+                                <div class="bg-white/80 border border-gray-200 rounded-full py-3 flex flex-col items-center justify-between h-26 shadow-2xs">
+                                    <span class="text-xs font-medium text-gray-400">Sat</span>
+                                    <span class="text-sm font-bold text-gray-800">27</span>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+
+                </main>
+
+                <!-- VIEW 2: CLASSES VIEW WITH DYNAMIC SUB-PILL TAB SWITCHING -->
+                <main id="view-masterlist" class="hidden flex-col gap-6">
+                    
+                    <!-- HEADER BAR & METRIC BADGES -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div>
+                            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Classes</h1>
+                            <p class="text-sm font-medium text-gray-400 mt-0.5">S.Y 2026-2027 | 1st Term</p>
+
+                            <!-- Sub-Pills Switches -->
+                            <div class="flex items-center gap-2.5 mt-4">
+                                <button id="pill-upcoming" onclick="switchClassTab('upcoming')" class="px-7 py-2 bg-himc-darkBlue text-white rounded-full text-xs font-bold shadow-xs transition">
+                                    Upcoming
+                                </button>
+                                <button id="pill-all-classes" onclick="switchClassTab('all')" class="px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition">
+                                    All Classes
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TOP RIGHT METRIC SUMMARY CARD -->
+                        <div class="bg-white/90 border border-gray-200 rounded-3xl px-8 py-4 shadow-xs flex items-center justify-between gap-8 sm:gap-12">
+                            <!-- Metric 1: Classes -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-8 bg-lime-400 rounded-full"></div>
+                                <div>
+                                    <span class="text-2xl font-black text-gray-900 leading-none block">7</span>
+                                    <span class="text-xs font-semibold text-gray-500">Classes</span>
+                                </div>
+                            </div>
+
+                            <!-- Metric 2: Grade Levels -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-8 bg-amber-400 rounded-full"></div>
+                                <div>
+                                    <span class="text-2xl font-black text-gray-900 leading-none block">1</span>
+                                    <span class="text-xs font-semibold text-gray-500">Grade Levels</span>
+                                </div>
+                            </div>
+
+                            <!-- Metric 3: Students -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-8 bg-sky-400 rounded-full"></div>
+                                <div>
+                                    <span class="text-2xl font-black text-gray-900 leading-none block">200</span>
+                                    <span class="text-xs font-semibold text-gray-500">Students</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT 1: UPCOMING CLASSES -->
+                    <div id="tab-content-upcoming" class="flex flex-col gap-6">
+                        <!-- UPCOMING CLASSES CONTAINER -->
+                        <section class="glass-card p-6 md:p-8">
+                            <h2 class="text-xl font-extrabold text-gray-900 mb-6">Upcoming Classes</h2>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                
+                                <!-- Class 1: Math -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-yellow-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Math: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">9:00 AM - 9:45 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class 2: Science -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-lime-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Science Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">9:45 AM - 10:30 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-lime-400 hover:bg-lime-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class 3: Filipino -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-sky-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Filipino: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">10:30 AM - 11:15 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-sky-400 hover:bg-sky-500 text-white text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class 4: Values -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-purple-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Values: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">11:15 AM - 12:00 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-purple-300 hover:bg-purple-400 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+
+                        <!-- NEEDS REVIEW SECTION -->
+                        <section class="glass-card p-6 md:p-8">
+                            <h2 class="text-xl font-extrabold text-gray-900 mb-6">Needs Review</h2>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                
+                                <!-- Class 5: Social Studies -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-amber-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Social Studies:<br>Grade 9 - St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:00 PM - 1:45 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                                            Needs Review
+                                        </div>
+                                        <button class="px-4 py-1.5 bg-amber-400 hover:bg-amber-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class 6: TLE - St. Kostka -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-rose-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">TLE: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:45 PM - 2:15 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                                            Needs Review
+                                        </div>
+                                        <button class="px-4 py-1.5 bg-rose-400 hover:bg-rose-500 text-white text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Class 7: TLE - St. Peter -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-rose-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">TLE: Grade 9 -<br>St. Peter</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:45 PM - 2:15 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                                            Needs Review
+                                        </div>
+                                        <button class="px-4 py-1.5 bg-rose-400 hover:bg-rose-500 text-white text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- TAB CONTENT 2: ALL CLASSES (CLASS RECORDS MOCKUP) -->
+                    <div id="tab-content-all" class="hidden flex-col gap-6">
+                        <section class="glass-card p-6 md:p-8">
+                            <!-- Class Records Header Controls -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                                <h2 class="text-2xl font-bold text-gray-900">Class Records</h2>
+
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <!-- Search Field -->
+                                    <div class="relative w-full sm:w-72">
+                                        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" placeholder="Search" class="w-full pl-11 pr-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-himc-blue shadow-xs">
+                                    </div>
+
+                                    <!-- Filter By Dropdown -->
+                                    <select class="px-5 py-2 bg-white border border-gray-300 rounded-full text-xs font-semibold text-gray-600 focus:outline-none cursor-pointer">
+                                        <option>Filter By</option>
+                                        <option>Grade 9</option>
+                                        <option>Grade 10</option>
+                                    </select>
+
+                                    <!-- Sort By Dropdown -->
+                                    <select class="px-5 py-2 bg-white border border-gray-300 rounded-full text-xs font-semibold text-gray-600 focus:outline-none cursor-pointer">
+                                        <option>Sort By</option>
+                                        <option>Class Name</option>
+                                        <option>Schedule</option>
+                                    </select>
+
+                                    <!-- Add Class Button -->
+                                    <button onclick="openDialog('Add Class', 'Create New Class Record', 'Fill out class section, advisor, and schedule details.')" class="px-6 py-2 bg-himc-blue hover:bg-blue-900 text-white text-xs font-bold rounded-full transition flex items-center gap-2 shadow-xs ml-auto sm:ml-0">
+                                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                        <span>Add Class</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Class Grid Items -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                
+                                <!-- Card 1: Math -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-yellow-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Math: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">9:00 AM - 9:45 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card 2: Science -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-lime-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Science Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">9:45 AM - 10:30 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-lime-400 hover:bg-lime-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card 3: Filipino -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-sky-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Filipino: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">10:30 AM - 11:15 AM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-sky-400 hover:bg-sky-500 text-white text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card 4: Values -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-purple-400 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Values: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">11:15 AM - 12:00 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-purple-300 hover:bg-purple-400 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card 5: Social Studies -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-amber-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">Social Studies:<br>Grade 9 - St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:00 PM - 1:45 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-amber-400 hover:bg-amber-500 text-gray-900 text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card 6: TLE - St. Kostka -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-rose-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">TLE: Grade 9 -<br>St. Kostka</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:45 PM - 2:15 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-rose-400 hover:bg-rose-500 text-white text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card 7: TLE - St. Peter -->
+                                <div class="bg-white border border-gray-200 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+                                    <div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-1.5 h-10 bg-rose-500 rounded-full shrink-0 mt-0.5"></div>
+                                            <div>
+                                                <h3 class="font-extrabold text-gray-900 text-base leading-snug">TLE: Grade 9 -<br>St. Peter</h3>
+                                                <p class="text-[11px] font-semibold text-gray-400 mt-2">1:45 PM - 2:15 PM</p>
+                                                <p class="text-[11px] font-medium text-gray-400 mt-0.5">T. John Doe · 32 students</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200 mt-6 flex items-center justify-end">
+                                        <button class="px-4 py-1.5 bg-rose-400 hover:bg-rose-500 text-white text-xs font-bold rounded-full transition flex items-center gap-1 shadow-2xs">
+                                            Go to Class <i data-lucide="chevron-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+                    </div>
+
+                </main>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="general-dialog" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-200">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 id="dialog-title" class="text-lg font-extrabold text-gray-900">Dialog Title</h3>
+                    <p id="dialog-subtitle" class="text-xs font-semibold text-gray-500">Category</p>
+                </div>
+                <button onclick="closeDialog()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="dialog-body" class="my-4 text-xs sm:text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                Dialog content detail description.
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeDialog()" class="px-5 py-2 bg-himc-darkBlue text-white text-xs font-bold rounded-full hover:bg-blue-900 transition">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch between Sidebar Node Views (Node 1 = Dashboard, Node 2 = Classes View)
+        function switchNodeView(viewName) {
+            const dashboardView = document.getElementById('view-dashboard');
+            const masterlistView = document.getElementById('view-masterlist');
+            const btn1 = document.getElementById('sidebar-node-1');
+            const btn2 = document.getElementById('sidebar-node-2');
+
+            if (viewName === 'masterlist') {
+                dashboardView.classList.add('hidden');
+                masterlistView.classList.remove('hidden');
+                masterlistView.classList.add('flex');
+
+                btn1.classList.remove('active');
+                btn2.classList.add('active');
+            } else {
+                masterlistView.classList.add('hidden');
+                masterlistView.classList.remove('flex');
+                dashboardView.classList.remove('hidden');
+
+                btn2.classList.remove('active');
+                btn1.classList.add('active');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Switch between Sub-Pills ('Upcoming' vs 'All Classes')
+        function switchClassTab(tab) {
+            const upcomingContent = document.getElementById('tab-content-upcoming');
+            const allContent = document.getElementById('tab-content-all');
+            const pillUpcoming = document.getElementById('pill-upcoming');
+            const pillAll = document.getElementById('pill-all-classes');
+
+            if (tab === 'all') {
+                upcomingContent.classList.add('hidden');
+                allContent.classList.remove('hidden');
+                allContent.classList.add('flex');
+
+                pillUpcoming.className = "px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition";
+                pillAll.className = "px-7 py-2 bg-himc-darkBlue text-white rounded-full text-xs font-bold shadow-xs transition";
+            } else {
+                allContent.classList.add('hidden');
+                allContent.classList.remove('flex');
+                upcomingContent.classList.remove('hidden');
+
+                pillUpcoming.className = "px-7 py-2 bg-himc-darkBlue text-white rounded-full text-xs font-bold shadow-xs transition";
+                pillAll.className = "px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition";
+            }
+        }
+
+        // Modal Handlers
+        function openDialog(title, subtitle, body) {
+            document.getElementById('dialog-title').innerText = title;
+            document.getElementById('dialog-subtitle').innerText = subtitle;
+            document.getElementById('dialog-body').innerHTML = body;
+            document.getElementById('general-dialog').classList.remove('hidden');
+        }
+
+        function closeDialog() {
+            document.getElementById('general-dialog').classList.add('hidden');
+        }
+
+        // Initialize icons on window load
+        window.onload = function() {
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>

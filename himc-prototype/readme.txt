@@ -1,6 +1,6 @@
-prototypes:
-- himc-login
-- himc-dashboard
+placeholder: himc_school_management_portal
 
-reference:
-- himc_school_management_portal
+role dashboard:
+- student-dashboard
+- teacher-dashboard
+- admin-dashboard

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HIMC School Management Portal</title>
+    <title>HIMC Admin Portal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -127,30 +127,33 @@
         <!-- TOP HEADER BAR -->
         <header class="flex items-center justify-between gap-4 mb-6">
             <!-- Logo Box -->
-            <div class="flex items-center cursor-pointer" onclick="showView('dashboard')">
-                <img src="img/himc-logo.jpg" alt="HIMC Logo" class="h-10 w-auto object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x40/0B31A5/FFF?text=HIMC'">
+            <div class="flex items-center cursor-pointer" onclick="switchNodeView('dashboard')">
+                <img src="img/himc-logo-transparent2.png" alt="HIMC Logo" class="h-10 w-auto object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x40/0B31A5/FFF?text=HIMC'">
             </div>
 
-            <!-- Center Navigation Capsules -->
-            <nav class="hidden md:flex items-center gap-3">
-                <button onclick="openDialog('Manage Users', 'System User Directory', 'Configure system access levels and user profiles.')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
-                    Manage Users
-                </button>
-                <button onclick="switchNodeView('masterlist')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
-                    Masterlist
-                </button>
-                <button onclick="switchNodeView('dashboard')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
-                    Classes
-                </button>
-                <button onclick="openDialog('Academic Reports', 'System Analytics', 'Generate quarterly deportment and grade progress reports.')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
-                    Reports
-                </button>
-            </nav>
+            <!-- Right-aligned Actions & Options -->
+            <div class="flex items-center gap-3 ml-auto">
+                <!-- Navigation Capsules (Action Pills) -->
+                <nav class="hidden md:flex items-center gap-3">
+                    <button onclick="openDialog('Manage Users', 'System User Directory', 'Configure system access levels and user profiles.')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                        Manage Users
+                    </button>
+                    <button onclick="switchNodeView('masterlist')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                        Masterlist
+                    </button>
+                    <button onclick="switchNodeView('dashboard')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                        Classes
+                    </button>
+                    <button onclick="openDialog('Academic Reports', 'System Analytics', 'Generate quarterly deportment and grade progress reports.')" class="px-6 py-2 text-sm font-semibold text-gray-700 bg-white/80 hover:bg-white border border-gray-300 rounded-full shadow-xs transition-all hover:border-gray-400">
+                        Reports
+                    </button>
+                </nav>
 
-            <!-- Menu Button Right -->
-            <button onclick="openDialog('Options', 'System Preferences', 'Configure active term settings and notifications.')" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-black/5 transition" title="More Options">
-                <i data-lucide="more-vertical" class="w-6 h-6"></i>
-            </button>
+                <!-- Menu Button Right -->
+                <button onclick="openDialog('Options', 'System Preferences', 'Configure active term settings and notifications.')" class="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-black/5 transition" title="More Options">
+                    <i data-lucide="more-vertical" class="w-6 h-6"></i>
+                </button>
+            </div>
         </header>
 
         <!-- MAIN CONTENT AREA (SIDEBAR + VIEWS) -->
