@@ -11,7 +11,7 @@
     <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -42,7 +42,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(550deg, #FCFBF5 0%, #FAF6EE 35%, #EFF3FD 70%, #E2EBFB 100%);
+            background: linear-gradient(170deg, #FCFBF5 0%, #FAF6EE 35%, #EFF3FD 70%, #E2EBFB 100%);
             min-height: 100vh;
             color: #111827;
             -webkit-font-smoothing: antialiased;
@@ -188,7 +188,7 @@
                 </div>
 
                 <!-- Bottom Logout Button -->
-                <button onclick="openDialog('Sign Out', 'Logout Confirmation', 'Are you sure you want to log out of the HIMC Portal?')" class="sidebar-btn mt-auto text-gray-600" title="Log Out">
+                <button onclick="handleLogout()" class="sidebar-btn mt-auto text-gray-600" title="Log Out">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </aside>
@@ -196,6 +196,7 @@
             <!-- MAIN DYNAMIC CONTENT CONTAINER -->
             <div class="flex-1 w-full overflow-hidden">
 
+                <!-- VIEW 1: DASHBOARD -->
                 <main id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     
                     <!-- LEFT 8-COLUMNS SECTION -->
@@ -327,7 +328,7 @@
                             </div>
                             <div class="overflow-hidden">
                                 <h3 class="font-bold text-gray-900 text-base leading-tight truncate">John Doe</h3>
-                                <p class="text-xs text-gray-500 font-medium truncate mt-0.5">johndoe@himc.edu.ph</p>
+                                <p class="text-xs text-gray-500 font-medium truncate mt-0.5">johndoe-admin@himc.edu.ph</p>
                             </div>
                         </div>
 
@@ -419,6 +420,7 @@
 
                 </main>
 
+                <!-- VIEW 2: MASTERLIST & SCHOOL RECORDS -->
                 <main id="view-masterlist" class="hidden flex-col gap-6">
                     
                     <!-- MASTERLIST HEADER & STATS BAR -->
@@ -429,35 +431,35 @@
 
                             <!-- Sub-Pills Switches -->
                             <div class="flex items-center gap-2.5 mt-4">
-                                <button class="px-7 py-2 bg-himc-darkBlue text-white rounded-full text-xs font-bold shadow-xs">
+                                <button id="pill-switch-people" onclick="switchMasterlistCategory('people')" class="px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition">
                                     People
                                 </button>
-                                <button onclick="switchNodeView('dashboard')" class="px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition">
+                                <button id="pill-switch-classes" onclick="switchMasterlistCategory('classes')" class="px-7 py-2 bg-himc-darkBlue text-white rounded-full text-xs font-bold shadow-xs">
                                     Classes
                                 </button>
-                                <button class="px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition">
+                                <button id="pill-switch-masterlist" onclick="switchMasterlistCategory('masterlist')" class="px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition">
                                     Masterlist
                                 </button>
                             </div>
                         </div>
 
                         <!-- TOP RIGHT METRIC SUMMARY CARD -->
-                        <div class="bg-white/90 border border-gray-200 rounded-3xl p-5 shadow-xs flex items-center justify-between gap-6 sm:gap-10">
-                            <!-- Metric 1: Students Enrolled -->
+                        <div id="metric-summary-card" class="bg-white/90 border border-gray-200 rounded-3xl p-5 shadow-xs flex items-center justify-between gap-6 sm:gap-10">
+                            <!-- Metric 1: Students Enrolled / Classes -->
                             <div class="flex items-center gap-3">
                                 <div class="w-1.5 h-8 bg-green-400 rounded-full"></div>
                                 <div>
-                                    <span class="text-2xl font-black text-gray-900 leading-none block">800</span>
-                                    <span class="text-xs font-medium text-gray-500">Students Enrolled</span>
+                                    <span id="metric-val-1" class="text-2xl font-black text-gray-900 leading-none block">6</span>
+                                    <span id="metric-label-1" class="text-xs font-medium text-gray-500">Classes</span>
                                 </div>
                             </div>
 
-                            <!-- Metric 2: Teachers -->
+                            <!-- Metric 2: Teachers / Grade Levels -->
                             <div class="flex items-center gap-3">
                                 <div class="w-1.5 h-8 bg-yellow-400 rounded-full"></div>
                                 <div>
-                                    <span class="text-2xl font-black text-gray-900 leading-none block">30</span>
-                                    <span class="text-xs font-medium text-gray-500">Teachers</span>
+                                    <span id="metric-val-2" class="text-2xl font-black text-gray-900 leading-none block">1</span>
+                                    <span id="metric-label-2" class="text-xs font-medium text-gray-500">Grade Levels</span>
                                 </div>
                             </div>
 
@@ -465,15 +467,15 @@
                             <div class="flex items-center gap-3">
                                 <div class="w-1.5 h-8 bg-red-400 rounded-full"></div>
                                 <div>
-                                    <span class="text-2xl font-black text-gray-900 leading-none block">2</span>
-                                    <span class="text-xs font-medium text-gray-500">Needs Action</span>
+                                    <span id="metric-val-3" class="text-2xl font-black text-gray-900 leading-none block">0</span>
+                                    <span id="metric-label-3" class="text-xs font-medium text-gray-500">Needs Action</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- SCHOOL RECORDS CONTAINER -->
-                    <div class="glass-card p-6 md:p-8">
+                    <!-- SUB-VIEW 1: PEOPLE / SCHOOL RECORDS CONTAINER -->
+                    <div id="container-people-records" class="glass-card p-6 md:p-8 hidden">
                         
                         <!-- Header & Add User Button -->
                         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
@@ -519,7 +521,7 @@
                             </div>
                         </div>
 
-                        <!-- TEACHERS TABLE (EXACT MOCKUP MATCH) -->
+                        <!-- TEACHERS TABLE -->
                         <div class="overflow-x-auto">
                             <table id="table-teachers" class="w-full text-left border-collapse">
                                 <thead>
@@ -597,7 +599,7 @@
                                 </tbody>
                             </table>
 
-                            <!-- STUDENTS TABLE (DYNAMIC TAB SWITCH) -->
+                            <!-- STUDENTS TABLE -->
                             <table id="table-students" class="w-full text-left border-collapse hidden">
                                 <thead>
                                     <tr class="text-xs font-bold text-gray-900 border-b border-gray-200">
@@ -646,6 +648,294 @@
 
                     </div>
 
+                    <!-- SUB-VIEW 2: CLASS RECORDS CONTAINER -->
+                    <div id="container-class-records" class="glass-card p-6 md:p-8">
+                        
+                        <!-- Header & Add Class Button -->
+                        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Class Records</h2>
+                            <button onclick="openDialog('Add Class Section', 'Create Class Record', 'Fill out class section name, subject details, and homeroom adviser.')" class="px-6 py-2.5 bg-himc-darkBlue hover:bg-blue-900 text-white rounded-full text-xs font-bold transition flex items-center gap-2.5 shadow-xs">
+                                <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                                <span>Add Class</span>
+                            </button>
+                        </div>
+
+                        <!-- SEARCH & CONTROL BAR -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+                            <!-- Search Input Pill -->
+                            <div class="relative w-full sm:w-80">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" placeholder="Search" class="w-full pl-11 pr-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-himc-blue shadow-2xs">
+                            </div>
+
+                            <!-- Filter & Sort Dropdown Pills -->
+                            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                <select class="px-5 py-2 bg-white border border-gray-300 rounded-full text-xs font-semibold text-gray-700 focus:outline-none cursor-pointer shadow-2xs">
+                                    <option>Filter By</option>
+                                    <option>Grade 9</option>
+                                    <option>St. Kostka</option>
+                                </select>
+                                <select class="px-5 py-2 bg-white border border-gray-300 rounded-full text-xs font-semibold text-gray-700 focus:outline-none cursor-pointer shadow-2xs">
+                                    <option>Sort By</option>
+                                    <option>Subject Name</option>
+                                    <option>Schedule Time</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CLASS CARDS GRID -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                            
+                            <!-- Card 1: Math (Yellow Accent) -->
+                            <div class="bg-white border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 transition-all">
+                                <div class="flex items-start gap-3 mb-6">
+                                    <div class="w-1.5 h-12 bg-amber-400 rounded-full shrink-0"></div>
+                                    <div>
+                                        <h3 class="font-extrabold text-gray-900 text-base leading-snug">Math: Grade 9 - St. Kostka</h3>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-1">9:00 AM - 9:45 AM</p>
+                                        <p class="text-[11px] font-medium text-gray-400">T. John Doe · 32 students</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-gray-100">
+                                    <button onclick="openDialog('Class View', 'Math Grade 9 - St. Kostka', 'Redirecting to subject roster and gradebook...')" class="px-4 py-1.5 bg-amber-400 hover:bg-amber-500 text-gray-900 font-extrabold text-[11px] rounded-full transition flex items-center gap-1 shadow-2xs">
+                                        <span>Go to Class</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Science (Lime Accent) -->
+                            <div class="bg-white border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 transition-all">
+                                <div class="flex items-start gap-3 mb-6">
+                                    <div class="w-1.5 h-12 bg-lime-400 rounded-full shrink-0"></div>
+                                    <div>
+                                        <h3 class="font-extrabold text-gray-900 text-base leading-snug">Science Grade 9 - St. Kostka</h3>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-1">9:45 AM - 10:30 AM</p>
+                                        <p class="text-[11px] font-medium text-gray-400">T. John Doe · 32 students</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-gray-100">
+                                    <button onclick="openDialog('Class View', 'Science Grade 9 - St. Kostka', 'Redirecting to subject roster and gradebook...')" class="px-4 py-1.5 bg-lime-400 hover:bg-lime-500 text-gray-900 font-extrabold text-[11px] rounded-full transition flex items-center gap-1 shadow-2xs">
+                                        <span>Go to Class</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Filipino (Sky Blue Accent) -->
+                            <div class="bg-white border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 transition-all">
+                                <div class="flex items-start gap-3 mb-6">
+                                    <div class="w-1.5 h-12 bg-sky-400 rounded-full shrink-0"></div>
+                                    <div>
+                                        <h3 class="font-extrabold text-gray-900 text-base leading-snug">Filipino: Grade 9 - St. Kostka</h3>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-1">10:30 AM - 11:15 AM</p>
+                                        <p class="text-[11px] font-medium text-gray-400">T. John Doe · 32 students</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-gray-100">
+                                    <button onclick="openDialog('Class View', 'Filipino Grade 9 - St. Kostka', 'Redirecting to subject roster and gradebook...')" class="px-4 py-1.5 bg-sky-400 hover:bg-sky-500 text-white font-extrabold text-[11px] rounded-full transition flex items-center gap-1 shadow-2xs">
+                                        <span>Go to Class</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Values (Purple/Pink Accent) -->
+                            <div class="bg-white border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 transition-all">
+                                <div class="flex items-start gap-3 mb-6">
+                                    <div class="w-1.5 h-12 bg-fuchsia-400 rounded-full shrink-0"></div>
+                                    <div>
+                                        <h3 class="font-extrabold text-gray-900 text-base leading-snug">Values: Grade 9 - St. Kostka</h3>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-1">11:15 AM - 12:00 PM</p>
+                                        <p class="text-[11px] font-medium text-gray-400">T. John Doe · 32 students</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-gray-100">
+                                    <button onclick="openDialog('Class View', 'Values Grade 9 - St. Kostka', 'Redirecting to subject roster and gradebook...')" class="px-4 py-1.5 bg-fuchsia-300 hover:bg-fuchsia-400 text-gray-900 font-extrabold text-[11px] rounded-full transition flex items-center gap-1 shadow-2xs">
+                                        <span>Go to Class</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card 5: Social Studies (Orange Accent) -->
+                            <div class="bg-white border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 transition-all">
+                                <div class="flex items-start gap-3 mb-6">
+                                    <div class="w-1.5 h-12 bg-amber-500 rounded-full shrink-0"></div>
+                                    <div>
+                                        <h3 class="font-extrabold text-gray-900 text-base leading-snug">Social Studies: Grade 9 - St. Kostka</h3>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-1">1:00 PM - 1:45 PM</p>
+                                        <p class="text-[11px] font-medium text-gray-400">T. John Doe · 32 students</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-gray-100">
+                                    <button onclick="openDialog('Class View', 'Social Studies Grade 9 - St. Kostka', 'Redirecting to subject roster and gradebook...')" class="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] rounded-full transition flex items-center gap-1 shadow-2xs">
+                                        <span>Go to Class</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card 6: TLE St. Kostka (Red Accent) -->
+                            <div class="bg-white border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 transition-all">
+                                <div class="flex items-start gap-3 mb-6">
+                                    <div class="w-1.5 h-12 bg-red-500 rounded-full shrink-0"></div>
+                                    <div>
+                                        <h3 class="font-extrabold text-gray-900 text-base leading-snug">TLE: Grade 9 - St. Kostka</h3>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-1">1:45 PM - 2:15 PM</p>
+                                        <p class="text-[11px] font-medium text-gray-400">T. John Doe · 32 students</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-gray-100">
+                                    <button onclick="openDialog('Class View', 'TLE Grade 9 - St. Kostka', 'Redirecting to subject roster and gradebook...')" class="px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white font-extrabold text-[11px] rounded-full transition flex items-center gap-1 shadow-2xs">
+                                        <span>Go to Class</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card 7: TLE St. Peter (Red Accent) -->
+                            <div class="bg-white border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:border-gray-300 transition-all">
+                                <div class="flex items-start gap-3 mb-6">
+                                    <div class="w-1.5 h-12 bg-red-500 rounded-full shrink-0"></div>
+                                    <div>
+                                        <h3 class="font-extrabold text-gray-900 text-base leading-snug">TLE: Grade 9 - St. Peter</h3>
+                                        <p class="text-[11px] font-medium text-gray-400 mt-1">1:45 PM - 2:15 PM</p>
+                                        <p class="text-[11px] font-medium text-gray-400">T. John Doe · 32 students</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-gray-100">
+                                    <button onclick="openDialog('Class View', 'TLE Grade 9 - St. Peter', 'Redirecting to subject roster and gradebook...')" class="px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white font-extrabold text-[11px] rounded-full transition flex items-center gap-1 shadow-2xs">
+                                        <span>Go to Class</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- SUB-VIEW 3: MASTERLIST UPLOAD & RECORDS CONTAINER (NEWLY ADDED FEATURE) -->
+                    <div id="container-masterlist-upload" class="flex flex-col gap-6 hidden">
+                        
+                        <!-- MASTERLIST RECORDS IMPORT CARD -->
+                        <div class="glass-card p-6 md:p-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-5">Masterlist Records</h2>
+                            
+                            <!-- Drag n Drop Zone -->
+                            <div class="border-2 border-dashed border-gray-300 rounded-2xl p-8 sm:p-12 flex flex-col items-center justify-center text-center bg-white/50 hover:bg-white/80 transition relative cursor-pointer" onclick="document.getElementById('file-input-masterlist').click()">
+                                <i data-lucide="search" class="w-5 h-5 absolute top-4 left-4 text-gray-400"></i>
+                                
+                                <div class="w-12 h-12 rounded-xl bg-slate-800 text-white flex items-center justify-center mb-3 shadow-md">
+                                    <i data-lucide="file-text" class="w-6 h-6"></i>
+                                </div>
+
+                                <p class="text-xs font-semibold text-gray-400">Drag n Drop here</p>
+                                <p class="text-xs font-semibold text-gray-400">Or</p>
+                                <p class="text-sm font-extrabold text-gray-800 mt-0.5">Browse</p>
+                                
+                                <input type="file" id="file-input-masterlist" class="hidden" onchange="handleMasterlistFileUpload(this)">
+                            </div>
+
+                            <!-- Upload Button -->
+                            <button onclick="handleMasterlistUploadSubmit()" class="w-full py-3 mt-4 bg-gray-300 hover:bg-himc-blue hover:text-white text-gray-600 font-bold text-sm rounded-xl transition shadow-xs">
+                                Upload Now
+                            </button>
+                        </div>
+
+                        <!-- BOTTOM CARDS GRID: CURRENT MASTERIST & IMPORT HISTORY -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            
+                            <!-- LEFT CARD: CURRENT MASTERIST -->
+                            <div class="lg:col-span-5 glass-card p-6 flex flex-col justify-between">
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-900 mb-5">Current Masterist</h2>
+
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left text-xs">
+                                            <thead>
+                                                <tr class="font-bold text-gray-500 border-b border-gray-200">
+                                                    <th class="pb-3">Name</th>
+                                                    <th class="pb-3">Records</th>
+                                                    <th class="pb-3">Valid</th>
+                                                    <th class="pb-3">Issues</th>
+                                                    <th class="pb-3">Last Imported</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="font-semibold text-gray-800">
+                                                <tr>
+                                                    <td class="py-4">AY 26-27</td>
+                                                    <td class="py-4">438</td>
+                                                    <td class="py-4">430</td>
+                                                    <td class="py-4 text-red-600 font-extrabold">8</td>
+                                                    <td class="py-4 text-gray-600">June 9, 2026</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Actions Bar -->
+                                <div class="flex items-center gap-3 pt-6">
+                                    <button onclick="switchMasterlistCategory('people')" class="px-5 py-2.5 bg-himc-darkBlue hover:bg-blue-900 text-white rounded-full text-xs font-bold transition flex items-center gap-2 shadow-xs">
+                                        <i data-lucide="search" class="w-4 h-4"></i>
+                                        <span>View Masterlist</span>
+                                    </button>
+
+                                    <button onclick="openDialog('Review Issues', '8 Invalid Records Detected', '1. Duplicate LRN (Line 42)<br>2. Missing Guardian Contact (Line 105)<br>3. Invalid Email Format (Line 210)')" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-full text-xs font-bold transition flex items-center gap-2 shadow-xs">
+                                        <i data-lucide="alert-square" class="w-4 h-4"></i>
+                                        <span>Review Issues</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT CARD: IMPORT HISTORY -->
+                            <div class="lg:col-span-7 glass-card p-6">
+                                <h2 class="text-xl font-bold text-gray-900 mb-5">Import History</h2>
+
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs">
+                                        <thead>
+                                            <tr class="font-bold text-gray-500 border-b border-gray-200">
+                                                <th class="pb-3">Name</th>
+                                                <th class="pb-3">Records</th>
+                                                <th class="pb-3">Valid</th>
+                                                <th class="pb-3">Issues</th>
+                                                <th class="pb-3">Last Imported</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="font-semibold text-gray-800 divide-y divide-gray-100">
+                                            <tr>
+                                                <td class="py-3.5">AY 26-27</td>
+                                                <td class="py-3.5">438</td>
+                                                <td class="py-3.5">430</td>
+                                                <td class="py-3.5 text-gray-600">8</td>
+                                                <td class="py-3.5 text-gray-600">June 1, 2026</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3.5">AY 26-27</td>
+                                                <td class="py-3.5">438</td>
+                                                <td class="py-3.5">433</td>
+                                                <td class="py-3.5 text-gray-600">5</td>
+                                                <td class="py-3.5 text-gray-600">March 12, 2026</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3.5">AY 26-27</td>
+                                                <td class="py-3.5">420</td>
+                                                <td class="py-3.5">420</td>
+                                                <td class="py-3.5 text-gray-600">0</td>
+                                                <td class="py-3.5 text-gray-600">March 6, 2026</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </main>
 
             </div>
@@ -654,6 +944,7 @@
 
     </div>
 
+    <!-- DIALOG MODAL -->
     <div id="general-dialog" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-200">
             <div class="flex justify-between items-start mb-3">
@@ -677,7 +968,7 @@
     </div>
 
     <script>
-        // Switch between Sidebar Node Views (Node 1 = Dashboard, Node 2 = Masterlist)
+        // Switch between Sidebar Node Views (Node 1 = Dashboard, Node 2 = Masterlist View)
         function switchNodeView(viewName) {
             const dashboardView = document.getElementById('view-dashboard');
             const masterlistView = document.getElementById('view-masterlist');
@@ -691,6 +982,9 @@
 
                 btn1.classList.remove('active');
                 btn2.classList.add('active');
+
+                // Default to Classes view pill when entering Masterlist section
+                switchMasterlistCategory('classes');
             } else {
                 masterlistView.classList.add('hidden');
                 masterlistView.classList.remove('flex');
@@ -702,7 +996,74 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Switch between Students & Teachers tabs on Masterlist
+        // Switch between Sub-Pill Switches on Masterlist Header (People / Classes / Masterlist)
+        function switchMasterlistCategory(category) {
+            const containerPeople = document.getElementById('container-people-records');
+            const containerClasses = document.getElementById('container-class-records');
+            const containerUpload = document.getElementById('container-masterlist-upload');
+
+            const pillPeople = document.getElementById('pill-switch-people');
+            const pillClasses = document.getElementById('pill-switch-classes');
+            const pillMasterlist = document.getElementById('pill-switch-masterlist');
+
+            const mVal1 = document.getElementById('metric-val-1');
+            const mLabel1 = document.getElementById('metric-label-1');
+            const mVal2 = document.getElementById('metric-val-2');
+            const mLabel2 = document.getElementById('metric-label-2');
+            const mVal3 = document.getElementById('metric-val-3');
+            const mLabel3 = document.getElementById('metric-label-3');
+
+            // Reset Pill Styling
+            const inactiveStyle = "px-7 py-2 bg-white/90 border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-white transition";
+            const activeStyle = "px-7 py-2 bg-himc-darkBlue text-white rounded-full text-xs font-bold shadow-xs";
+
+            pillPeople.className = inactiveStyle;
+            pillClasses.className = inactiveStyle;
+            pillMasterlist.className = inactiveStyle;
+
+            containerPeople.classList.add('hidden');
+            containerClasses.classList.add('hidden');
+            containerUpload.classList.add('hidden');
+
+            if (category === 'classes') {
+                pillClasses.className = activeStyle;
+                containerClasses.classList.remove('hidden');
+
+                mVal1.innerText = '6';
+                mLabel1.innerText = 'Classes';
+                mVal2.innerText = '1';
+                mLabel2.innerText = 'Grade Levels';
+                mVal3.innerText = '0';
+                mLabel3.innerText = 'Needs Action';
+            } else if (category === 'people') {
+                pillPeople.className = activeStyle;
+                containerPeople.classList.remove('hidden');
+
+                mVal1.innerText = '800';
+                mLabel1.innerText = 'Students Enrolled';
+                mVal2.innerText = '30';
+                mLabel2.innerText = 'Teachers';
+                mVal3.innerText = '2';
+                mLabel3.innerText = 'Needs Action';
+            } else {
+                // MASTERLIST PILL SWITCH
+                pillMasterlist.className = activeStyle;
+                containerUpload.classList.remove('hidden');
+
+                mVal1.innerText = '438';
+                mLabel1.innerText = 'Total Records';
+                mVal2.innerText = '430';
+                mLabel2.innerText = 'Valid Records';
+                mVal3.innerText = '8';
+                mLabel3.innerText = 'Invalid Records';
+            }
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        // Switch between Students & Teachers tabs on Masterlist People container
         function switchRecordTab(tab) {
             const tableTeachers = document.getElementById('table-teachers');
             const tableStudents = document.getElementById('table-students');
@@ -734,6 +1095,17 @@
             });
         }
 
+        // File Upload Handlers for Masterlist
+        function handleMasterlistFileUpload(input) {
+            if (input.files && input.files[0]) {
+                openDialog('File Selected', input.files[0].name, 'Ready to process and import masterlist file.');
+            }
+        }
+
+        function handleMasterlistUploadSubmit() {
+            openDialog('Masterlist Upload', 'Processing File', 'Uploading and validating student/teacher records...');
+        }
+
         // Modal Handlers
         function openDialog(title, subtitle, body) {
             document.getElementById('dialog-title').innerText = title;
@@ -746,7 +1118,12 @@
             document.getElementById('general-dialog').classList.add('hidden');
         }
 
-        // Initialize icons on window load
+        // Logout Handler
+        function handleLogout() {
+            window.location.replace('himc-login.html');
+        }
+
+        // Initialize Lucide icons on load
         window.onload = function() {
             lucide.createIcons();
         };

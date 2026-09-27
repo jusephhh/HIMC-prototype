@@ -20,7 +20,6 @@
       align-items: center;
       justify-content: center;
       background-color: #f8fafc;
-      /* Using the latest wavy background asset */
       background-image: url('img/himc-login-bg.png');
       background-size: cover;
       background-position: center;
@@ -66,12 +65,10 @@
     }
 
     .logo-container {
-      
       display: flex;
       align-items: center;
     }
 
-    /* Cropping the border from the himc-logo.jpg using clip-path */
     .logo-container img {
       max-height: 150px;
       width: auto;
@@ -196,7 +193,7 @@
 <body>
 
   <div class="login-card">
-    <!-- Left Banner Photo using the _n_4 image -->
+    <!-- Left Banner Photo -->
     <div class="banner-side">
       <img src="img/himc-banner.jpg" alt="Holy Infant Montessori Center Banner">
     </div>
@@ -204,7 +201,6 @@
     <!-- Right Login Form -->
     <div class="form-side">
       <div class="logo-container">
-        <!-- The clip-path crops out the border while maintaining the logo text -->
         <img src="img/himc-logo.jpg" alt="HIMC Logo">
       </div>
 
@@ -214,20 +210,20 @@
         Please login in to your HIMC account.
       </p>
 
-      <form id="loginForm" onsubmit="event.preventDefault(); alert('Logging in...');">
+      <form id="loginForm">
         <div class="form-group">
-          <label class="form-label" for="email">Email Address</label>
+          <label class="form-label" for="usernameOrEmail">Username or Email Address</label>
           <div class="input-wrapper">
-            <input type="email" id="email" placeholder="@example.com" required>
-            <i class="fa-regular fa-envelope input-icon"></i>
+            <input type="text" id="usernameOrEmail" name="usernameOrEmail" placeholder="Username or email@example.com" autocomplete="username" required>
+            <i class="fa-regular fa-user input-icon"></i>
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="password">Password</label>
           <div class="input-wrapper">
-            <input type="password" id="password" placeholder="••••••••••••••••" required>
-            <i class="fa-solid fa-lock input-icon" id="togglePassword"></i>
+            <input type="password" id="password" name="password" placeholder="••••••••••••••••" autocomplete="current-password" required>
+            <i class="fa-regular fa-eye-slash input-icon" id="togglePassword"></i>
           </div>
         </div>
 
@@ -244,12 +240,34 @@
     const passwordInput = document.getElementById('password');
 
     togglePassword.addEventListener('click', function () {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
       
-      // Swap font-awesome lock icons
-      this.classList.toggle('fa-lock');
-      this.classList.toggle('fa-lock-open');
+      // Swap FontAwesome eye icons for clear visibility feedback
+      this.classList.toggle('fa-eye-slash', !isPassword);
+      this.classList.toggle('fa-eye', isPassword);
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      //retrieves the values from the input fields and trims any whitespace
+      const usernameOrEmail = document.getElementById('usernameOrEmail').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      // Simple client-side validation for demonstration purposes
+      if (usernameOrEmail == "admin" && password == "admin") {
+        alert('Login successful! Welcome, Admin.');
+        window.location.href = 'himc-dashboard.html'; // Redirect to dashboard or another page
+      } else if (usernameOrEmail == "teacher" && password == "teacher") {
+        alert('Login successful! Welcome, Teacher.');
+        window.location.href = 'teacher-dashboard.html'; // Redirect to teacher dashboard
+      } else if (usernameOrEmail == "student" && password == "student") {
+        alert('Login successful! Welcome, Student.');
+        window.location.href = 'student-dashboard.html'; // Redirect to student dashboard
+      } else {
+        alert('Invalid username or password.');
+      }
     });
   </script>
 

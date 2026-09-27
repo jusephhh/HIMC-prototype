@@ -161,7 +161,7 @@
                 </div>
 
                 <!-- Bottom Logout Button -->
-                <button onclick="openDialog('Sign Out', 'Logout Confirmation', 'Are you sure you want to log out of the HIMC Portal?')" class="sidebar-btn mt-auto text-gray-600" title="Log Out">
+                <button onclick="handleLogout()" class="sidebar-btn mt-auto text-gray-600" title="Log Out">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </aside>
@@ -929,6 +929,11 @@
 
         function closeDialog() {
             document.getElementById('general-dialog').classList.add('hidden');
+        }
+
+        // Logout Handler
+        function handleLogout() {
+            window.location.replace('himc-login.html');
         }
 
         // Initialize icons on window load
